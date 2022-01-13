@@ -36,3 +36,19 @@ You should fork the code, and start tweaking it the way you want it to behave. T
 
 Hit up the Bitburner Discord with any questions: https://discord.gg/Wjrs92b3
 Many helpful folks in there are familiar with my scripts or ones similar to them and can address your questions and concerns far quicker than I can.
+
+
+# Edit:
+
+Credit goes to u/__Aimbot__ on Reddit from this Post https://www.reddit.com/r/Bitburner/comments/rm48o1/the_best_hacking_approach_ive_seen_so_far/
+and on alainbryden https://github.com/alainbryden/bitburner-scripts for their great scripts!
+
+1. all files from OP have to go in the `/OP/` folder. To create that folder u have to type `nano /OP/OP.js` and copy the content of the `OP.js` in. 
+   after that u can just do `cd OP` to      get into the folder.
+3. copy the other files into the OP folder.
+4. u need at least 4TB Ram and `Formulas.exe` for this to work!
+5. go to Options and set Netscript exec time to 5ms!!!
+6. kill the daemon.js and the other helpers
+7. `run analyze-hack.js --tail` to determine the server u want to milk.
+8. to start type `OP.js Servername --tail`
+9. Profit!
