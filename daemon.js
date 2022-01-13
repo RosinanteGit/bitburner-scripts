@@ -30,8 +30,8 @@ const weakenThreadPadding = 0; //0.01;
 const purchasedServersName = "daemon";
 
 // The maximum current total RAM utilization before we stop attempting to schedule work for the next less profitable server. Can be used to reserve capacity.
-const maxUtilization = 0.95;
-const lowUtilizationThreshold = 0.80; // The counterpart - low utilization, which leads us to ramp up targets
+const maxUtilization = 0.02;
+const lowUtilizationThreshold = 0.01; // The counterpart - low utilization, which leads us to ramp up targets
 // If we have plenty of resources after targeting all possible servers, we can start to grow/weaken servers above our hack level - up to this utilization
 const maxUtilizationPreppingAboveHackLevel = 0.75;
 // Maximum number of milliseconds the main targeting loop should run before we take a break until the next loop
