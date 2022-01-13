@@ -1,0 +1,39 @@
+alias root=run BruteSSH.exe;run FTPCrack.exe;run relaySMTP.exe;run HTTPworm.exe;run SQLInject.exe;run NUKE.exe;backdoor
+
+alias rebuy=buy BruteSSH.exe; buy FTPCrack.exe; buy relaySMTP.exe; buy HTTPWorm.exe; buy SQLInject.exe; buy ServerProfiler.exe; buy DeepscanV1.exe; buy DeepscanV2.exe; buy AutoLink.exe; buy Formulas.exe
+
+alias start=run daemon.js -v --tail --stock-manipulation
+
+alias rdy=run advanced-v3.ns; run stats.js; run stockmaster.js
+
+alias buyall=buy BruteSSH.exe; buy FTPCrack.exe; buy relaySMTP.exe; buy HTTPWorm.exe; buy SQLInject.exe; buy ServerProfiler.exe; buy DeepscanV1.exe; buy DeepscanV2.exe; buy AutoLink.exe; buy Formulas.exe
+
+alias stock=run stockmaster.js --show-market-summary
+
+alias startxp=run daemon.js -v -x --tail --silent-misfires
+
+alias startm=run daemon.js -v
+
+alias invites=run work-for-factions.js --invites-only --fast-crimes-only --no-coding-contracts
+
+alias rep=run work-for-factions.js -o --fast-crimes-only --no-coding-contracts
+
+alias startxpf=run daemon.js -v -x --tail --stock-manipulation --silent-misfires
+
+alias sell=run stockmaster.js --liquidate
+
+alias qol=run make-tabs-scrollable.js -run add-tab-control-to-editor -run colourful-terminal.js
+
+alias plist=cd gui; run process-list.js; home
+
+alias slist=cd gui; run server-list.js; home
+
+alias macro=cd gui; run macros.js
+
+alias con=run console.js
+
+alias updater=run /bin/svc/wsUpdater.js
+
+alias statsc=cd bin; cd svc; run wsStatsConnector.js
+
+global alias bootOS=run /os/main.js
