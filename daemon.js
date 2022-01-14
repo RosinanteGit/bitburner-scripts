@@ -30,7 +30,7 @@ const weakenThreadPadding = 0; //0.01;
 const purchasedServersName = "daemon";
 
 // The maximum current total RAM utilization before we stop attempting to schedule work for the next less profitable server. Can be used to reserve capacity.
-const maxUtilization = 0.95;
+const maxUtilization = 0.02;
 const lowUtilizationThreshold = 0.80; // The counterpart - low utilization, which leads us to ramp up targets
 // If we have plenty of resources after targeting all possible servers, we can start to grow/weaken servers above our hack level - up to this utilization
 const maxUtilizationPreppingAboveHackLevel = 0.75;
@@ -45,7 +45,7 @@ let maxBatches = 40; // the max number of batches this daemon will spool up to a
 let maxTargets = 0; // Initial value, will grow if there is an abundance of RAM
 let maxPreppingAtMaxTargets = 3; // The max servers we can prep when we're at our current max targets and have spare RAM
 // Allows some home ram to be reserved for ad-hoc terminal script running and when home is explicitly set as the "preferred server" for starting a helper 
-let homeReservedRam = 32;
+let homeReservedRam = 0; 
 
 // --- VARS ---
 // some ancillary scripts that run asynchronously, we utilize the startup/execute capabilities of this daemon to run when able
@@ -159,7 +159,7 @@ export function autocomplete(data, args) {
 // script entry point
 /** @param {NS} ns **/
 export async function main(ns) {
-    _ns = ns;
+    
     daemonHost = "home"; // ns.getHostname(); // get the name of this node (realistically, will always be home)
     updatePlayerStats();
     dictSourceFiles = await getActiveSourceFiles_Custom(ns, getNsDataThroughFile);
