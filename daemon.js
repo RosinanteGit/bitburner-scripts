@@ -2166,7 +2166,7 @@ async function kickstartHackXp (
     singleServerMode =
       singleServerMode ||
       i >= jobHosts.length - 1 - singleServerLimit ||
-      jobHosts[i + 1].totalRam() < 1000 // Switch to single-server mode if running out of hosts with high ram
+        jobHosts[i + 1].totalRam() < 1000 // Switch to single-server mode if running out of hosts with high ram
     etas.push(
       (lastSchedulingResult =
         (await scheduleHackExpCycle(
