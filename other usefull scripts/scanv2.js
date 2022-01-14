@@ -69,7 +69,7 @@ export async function main (ns) {
   })
 
   // Append "output" to terminal in the same way other elements in it are formatted
-  const doc = eval('\document')
+  const doc = eval('document')
 
   doc.getElementById('terminal').insertAdjacentHTML(
     'beforeend',

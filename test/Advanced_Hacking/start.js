@@ -41,11 +41,11 @@ export async function main (ns) {
     }
     ns.print('Portbusters the program thinks you own: ' + ownedBusters)
     //loop over all the servers and find potential victims.
-    let server = servers[index];
+    let server = servers[index]
     //we need to know hacking level and ports needed to nuke to determine viable targets.
-    let numPorts = ns.getServerNumPortsRequired(server.name);
+    let numPorts = ns.getServerNumPortsRequired(server.name)
     //now grab the other data, we're passing this to the knock script so it can pass it further to the daemon.
-    let newTarget = ns.getServer(server.name);
+    let newTarget = ns.getServer(server.name)
     //we won't nuke if we have access
     if (!newTarget.hasAdminRights) {
       // Only use necessary portbusters
