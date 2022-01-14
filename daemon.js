@@ -57,7 +57,7 @@ let maxBatches = 40 // the max number of batches this daemon will spool up to av
 let maxTargets = 0 // Initial value, will grow if there is an abundance of RAM
 let maxPreppingAtMaxTargets = 3 // The max servers we can prep when we're at our current max targets and have spare RAM
 // Allows some home ram to be reserved for ad-hoc terminal script running and when home is explicitly set as the "preferred server" for starting a helper
-let homeReservedRam = 32
+let homeReservedRam = 0
 
 // --- VARS ---
 // some ancillary scripts that run asynchronously, we utilize the startup/execute capabilities of this daemon to run when able
@@ -170,7 +170,7 @@ const argsSchema = [
   ['queue-delay', 1000],
   ['max-batches', 40],
   ['i', false], // Farm intelligence with manual hack.
-  ['reserved-ram', 32],
+  ['reserved-ram', 0],
   ['looping-mode', false], // Set to true to attempt to schedule perpetually-looping tasks.
   ['recovery-thread-padding', 1]
 ]
@@ -181,7 +181,8 @@ export function autocomplete (data, args) {
 }
 
 // script entry point
-/** @param {NS} ns **/
+//** @param {NS} ns **/
+/** @param {import("..").NS } ns */
 export async function main (ns) {
   _ns = ns
   daemonHost = 'home' // ns.getHostname(); // get the name of this node (realistically, will always be home)
@@ -251,6 +252,9 @@ export async function main (ns) {
   queueDelay = options['queue-delay']
   maxBatches = options['max-batches']
   homeReservedRam = options['reserved-ram']
+  // if home "reserved ram" is not set reserve 99% of Hosts Ram
+  if (homeReservedRam == 0)
+    homeReservedRam = ns.getServerMaxRam(ns.hostName()) * 0.99
 
   // These scripts are started once and expected to run forever (or terminate themselves when no longer needed)
   asynchronousHelpers = [
