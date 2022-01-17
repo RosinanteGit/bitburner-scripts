@@ -10,7 +10,7 @@ export async function main (ns) {
   var hackscriptRam = ns.getScriptRam('/OP/hack.js')
   var growscriptRam = ns.getScriptRam('/OP/grow.js')
   var weakenscriptRam = ns.getScriptRam('/OP/weaken.js')
-  var maxRam = ns.getServerMaxRam(server2) * 0.98 - contstantRam //getting 98% of total RAM I can use that exclude the OP script
+  var maxRam = ns.getServerMaxRam(server2) * 0.99 - contstantRam - 32 //getting 99% of total RAM I can use that exclude the OP script and 32GB
   var weakenThreads = 2000 - ns.getServerMinSecurityLevel(server) / 0.05
   var maxGrowThreads = maxRam / growscriptRam - weakenscriptRam * 2000
   var cs = ns.getServerSecurityLevel(server)
