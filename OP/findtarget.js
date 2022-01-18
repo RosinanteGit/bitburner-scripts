@@ -81,10 +81,10 @@ export async function main (ns) {
   var fserver = ''
   var weakenTime = 0
   var mps = 0
-  var contstantRam = ns.getScriptRam('/newserver/OP.ns') //grabbing script RAM values
-  var hackscriptRam = ns.getScriptRam('/newserver/hack.js')
-  var growscriptRam = ns.getScriptRam('/newserver/grow.js')
-  var weakenscriptRam = ns.getScriptRam('/newserver/weaken.js')
+  var contstantRam = ns.getScriptRam('/OP/OP.js') //grabbing script RAM values
+  var hackscriptRam = ns.getScriptRam('/OP/hack.js')
+  var growscriptRam = ns.getScriptRam('/OP/grow.js')
+  var weakenscriptRam = ns.getScriptRam('/OP/weaken.js')
   var serverRam = ns.args[0]
   var weakenTime = 0
   var growThreads = 0
