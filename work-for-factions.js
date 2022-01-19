@@ -388,6 +388,67 @@ export async function main (ns) {
         scope-- // De-increment scope so that effecitve scope doesn't increase on the next loop (i.e. it will be incrementedback to what it is now)
         break
       }
+        // Remove Fulcrum from our "EarlyFactionOrder" if hack level is insufficient to backdoor their server
+        let priorityFactions = crimeFocus ? preferredCrimeFactionOrder.slice() : preferredEarlyFactionOrder.slice();
+        let fulcrummHackReq = ns.getServerRequiredHackingLevel("fulcrumassets");
+        if (player.hacking < fulcrummHackReq - 10) { // Assume that if we're within 10, we'll get there by the time we've earned the invite
+            priorityFactions.splice(priorityFactions.findIndex(c => c == "Fulcrum Secret Technologies"), 1);
+            ns.print(`Fulcrum faction server requires ${fulcrummHackReq} hack, so removing from our initial priority list for now.`);
+        } // TODO: Otherwise, if we get Fulcrum, we have no need for a couple other company factions
+        // Strategy 1: Tackle a consolidated list of desired faction order, interleaving simple factions and megacorporations
+        const factionWorkOrder = firstFactions.concat(priorityFactions.filter(f => !firstFactions.includes(f) && !skipFactions.includes(f)))
+            .filter(f => !softCompletedFactions.includes(f)); // Remove factions from our initial "work order" if we've bought all desired augmentations.        
+        for (const faction of factionWorkOrder) {
+            let earnedNewFactionInvite = false;
+            if (preferredCompanyFactionOrder.includes(faction)) // If this is a company faction, we need to work for the company first
+                earnedNewFactionInvite = await workForMegacorpFactionInvite(ns, faction, true);
+            // If new work was done for a company or their faction, restart the main work loop to see if we've since unlocked a higher-priority faction in the list
+            if (earnedNewFactionInvite || await workForSingleFaction(ns, faction)) {
+                scope--; // De-increment scope so that effecitve scope doesn't increase on the next loop (i.e. it will be incrementedback to what it is now)
+                break;
+            }
+        }
+        if (scope < 1) continue;
+
+        // Strategy 2: Grind XP with all priority factions that are joined or can be joined, until every single one has desired REP
+        for (const faction of factionWorkOrder)
+            await workForSingleFaction(ns, faction);
+        if (scope < 2) continue;
+
+        // Strategy 3: Work for any megacorporations not yet completed to earn their faction invites. Once joined, we don't lose these factions on reset.
+        let megacorpFactions = preferredCompanyFactionOrder.filter(f => !skipFactions.includes(f));
+        await workForAllMegacorps(ns, megacorpFactions, false);
+        if (scope < 3) continue;
+
+        // Strategy 4: Work for megacorps again, but this time also work for the company factions once the invite is earned
+        await workForAllMegacorps(ns, megacorpFactions, true);
+        if (scope < 4) continue;
+
+        // Strategies 5+ now work towards getting an invite to *all factions in the game* (sorted by least-expensive final aug (correlated to easiest faction-invite requirement))
+        let joinedFactions = player.factions; // In case our hard-coded list of factions is missing anything, merge it with the list of all factions
+        let allIncompleteFactions = factions.concat(joinedFactions.filter(f => !factions.includes(f))).filter(f => !skipFactions.includes(f) && !completedFactions.includes(f))
+            .sort((a, b) => mostExpensiveAugByFaction[a] - mostExpensiveAugByFaction[b]);
+        // Strategy 5: For *all factions in the game*, try to earn an invite and work for rep until we can afford the most-expensive *desired* aug (or unlock donations, whichever comes first)
+        for (const faction of allIncompleteFactions.filter(f => !softCompletedFactions.includes(f)))
+            await workForSingleFaction(ns, faction);
+        if (scope < 5) continue;
+
+        // Strategy 6: Revisit all factions until each has enough rep to unlock donations - so if we can't afford all augs this reset, at least we don't need to grind for rep on the next reset
+        // For this, we reverse the order (ones with augs costing the most-rep to least) since these will take the most time to re-grind rep for if we can't buy them this reset.
+        for (const faction of allIncompleteFactions.reverse())
+            await workForSingleFaction(ns, faction, true);
+        if (scope < 6) continue;
+
+        // Strategy 7:  Next, revisit all factions and grind XP until we can afford the most expensive aug, even if we could just buy the required rep next reset
+        for (const faction of allIncompleteFactions.reverse()) // Re-reverse the sort order so we start with the easiest (cheapest) faction augs to complete
+            await workForSingleFaction(ns, faction, true, true);
+        if (scope < 7) continue;
+
+        // Strategy 8: Commit crimes for a while longer, then loop to see if there anything more we can do for the above factions
+        if (noCrime) {
+            ns.print(`--no-crime (or --no-focus): Crimes are disabled, so sleeping for a while (30s) then checking back on whether there's any work to be done...`);
+            await ns.sleep(30000);
+        } else await crimeForKillsKarmaStats(ns, 0, -ns.heart.break() + 100, 0);
     }
     if (scope < 1) continue
 
