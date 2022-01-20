@@ -1,39 +1,43 @@
-alias root=run BruteSSH.exe;run FTPCrack.exe;run relaySMTP.exe;run HTTPworm.exe;run SQLInject.exe;run NUKE.exe;backdoor
+alias root="run BruteSSH.exe; run FTPCrack.exe; run relaySMTP.exe; run HTTPworm.exe; run SQLInject.exe; run NUKE.exe; backdoor"
 
-alias rebuy=buy BruteSSH.exe; buy FTPCrack.exe; buy relaySMTP.exe; buy HTTPWorm.exe; buy SQLInject.exe; buy ServerProfiler.exe; buy DeepscanV1.exe; buy DeepscanV2.exe; buy AutoLink.exe; buy Formulas.exe
+alias rebuy="buy BruteSSH.exe; buy FTPCrack.exe; buy relaySMTP.exe; buy HTTPWorm.exe; buy SQLInject.exe; buy ServerProfiler.exe; buy DeepscanV1.exe; buy DeepscanV2.exe; buy AutoLink.exe; buy Formulas.exe"
 
-alias start=run daemon.js -v --tail --stock-manipulation
+alias start="run daemon.js -v --tail --stock-manipulation --silent-misfires"
 
-alias rdy=run advanced-v3.ns; run stats.js; run stockmaster.js
+alias stock="run stockmaster.js --show-market-summary"
 
-alias buyall=buy BruteSSH.exe; buy FTPCrack.exe; buy relaySMTP.exe; buy HTTPWorm.exe; buy SQLInject.exe; buy ServerProfiler.exe; buy DeepscanV1.exe; buy DeepscanV2.exe; buy AutoLink.exe; buy Formulas.exe
+alias startxp="run daemon.js -v -x --tail --stock-manipulation --silent-misfires"
 
-alias stock=run stockmaster.js --show-market-summary
+alias invites="run work-for-factions.js --invites-only --fast-crimes-only --no-coding-contracts"
 
-alias startxp=run daemon.js -v -x --tail --silent-misfires
+alias sell="run stockmaster.js --liquidate"
 
-alias startm=run daemon.js -v
+alias plist="cd gui; run process-list.js; home"
 
-alias invites=run work-for-factions.js --invites-only --fast-crimes-only --no-coding-contracts
+alias slist="cd gui; run server-list.js; home"
 
-alias rep=run work-for-factions.js -o --fast-crimes-only --no-coding-contracts
+alias macro="cd gui; run macros.js; home"
 
-alias startxpf=run daemon.js -v -x --tail --stock-manipulation --silent-misfires
+alias dev="run dev.js"
 
-alias sell=run stockmaster.js --liquidate
+alias statsc="cd bin; cd svc; run wsStatsConnector.js; home"
 
-alias qol=run make-tabs-scrollable.js -run add-tab-control-to-editor -run colourful-terminal.js
+alias find="run find.js --tail"
 
-alias plist=cd gui; run process-list.js; home
+alias op="cd /OP/; run OP.js megacorp --tail"
 
-alias slist=cd gui; run server-list.js; home
+alias anal="cd home; run analyze-hack.js; cd OP"
 
-alias macro=cd gui; run macros.js
+alias work="run work-for-factions.js --fast-crimes-only --no-coding-contracts"
 
-alias con=run console.js
+alias hackn="run hacknet-upgrade-manager.js -c --max-payoff-time 48h"
 
-alias updater=run /bin/svc/wsUpdater.js
+alias adv4="cd bitburner-scripts; cd Important-Scripts; cd Standard-Scripts; run advanced-v4.js; home"
 
-alias statsc=cd bin; cd svc; run wsStatsConnector.js
+alias hash="run spend-hacknet-hashes.js -l"
 
-global alias bootOS=run /os/main.js
+alias startxpn="run daemon.js -v -x -n --tail --silent-misfires --stock-manipulation"
+
+alias adv3="run stats.js; run stockmaster.js; run advanced-v3.ns"
+
+global alias bootOS="run /os/main.js"
