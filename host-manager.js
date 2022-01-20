@@ -14,10 +14,10 @@ let maxPurchasableServerRamExponent = 20
 // the max number of servers you can have in your farm
 let maxPurchasedServers = 25
 // Don't attempt to buy any new servers if we're under this utilization
-let utilizationTarget = 0.5
+let utilizationTarget = 0.3 // changed to buy servers if we under 30% Utilization
 // Keep at least this much money on hand (so we arent blocked from buying necessary things)
 let reservedMoneyAmount = 0 //250000000; // Enable if needed (Can also use reserve.txt)
-let reservedMoneyPercent = 0.99 // Don't spend more than 1% of our money on temporary RAM
+let reservedMoneyPercent = 0.01 // Don't spend more than 99% of our money on temporary RAM
 let minRamExponent = 10
 // The name to give all purchased servers. Also used to determine which servers were purchased
 const purchasedServerName = 'daemon'
@@ -33,8 +33,8 @@ const argsSchema = [
   ['c', false], // Set to true to run continuously
   ['run-continuously', false],
   ['absolute-reserve', 0], // Set to reserve money
-  ['reserve-percent', 0.9], // Set to reserve a percentage of home money
-  ['utilization-trigger', 0.95], // the percentage utilization that will trigger an attempted purchase
+  ['reserve-percent', 0.01], // Set to reserve a percentage of home money
+  ['utilization-trigger', 0.3], // the percentage utilization that will trigger an attempted purchase
   ['min-ram-exponent', 5] // the minimum amount of ram to purchase
 ]
 
@@ -196,7 +196,7 @@ function tryToBuyBestServerPossible (ns) {
     )
 
   // Under some conditions, we consider the new server "not worthwhile". but only if it isn't the biggest possible server we can buy
-  if (exponentLevel < maxPurchasableServerRamExponent) {
+  /*if (exponentLevel < maxPurchasableServerRamExponent) {
     // Abort if our home server is more than 2x bettter (rough guage of how much we 'need' Daemon RAM at the current stage of the game?)
     // Unless we're looking at buying the maximum purchasable server size - in which case we can do no better
     if (maxRamPossibleToBuy < ns.getServerMaxRam('home') / 4)
@@ -217,7 +217,7 @@ function tryToBuyBestServerPossible (ns) {
           formatRam(totalMaxRam) +
           ')'
       )
-  }
+  }*/ // commented out to buy servers more regularly
 
   let maxPurchasableServerRam = Math.pow(2, maxPurchasableServerRamExponent)
   let worstServerName = null
