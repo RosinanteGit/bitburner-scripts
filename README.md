@@ -59,6 +59,10 @@ open ports and install backdoor
 
 `alias op="cd /OP/; run OP.js megacorp --tail"`
 
+**starts my standard scripts before running OP.js**
+
+`alias OPS="run stats.js; run work-for-factions.js --fast-crimes-only --no-coding-contracts; run stockmaster.js --show-market-summary"`
+
 **finds good targets and opens OP folder**
 
 `alias anal="cd home; run analyze-hack.js; cd OP"`
