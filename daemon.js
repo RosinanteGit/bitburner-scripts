@@ -54,7 +54,7 @@ let loopInterval = 1000 //ms
 let cycleTimingDelay = 1600
 let queueDelay = 100 // the delay that it can take for a script to start, used to pessimistically schedule things in advance
 let maxBatches = 40 // the max number of batches this daemon will spool up to avoid running out of IRL ram (TODO: Stop wasting RAM by scheduling batches so far in advance. e.g. Grind XP while waiting for cycle start!)
-let maxTargets = 63 // Initial value, will grow if there is an abundance of RAM changed from 0 to 63 to get faster start
+let maxTargets = 63 // Initial value, will grow if there is an abundance of RAM
 let maxPreppingAtMaxTargets = 3 // The max servers we can prep when we're at our current max targets and have spare RAM
 // Allows some home ram to be reserved for ad-hoc terminal script running and when home is explicitly set as the "preferred server" for starting a helper
 let homeReservedRam = 32
@@ -164,7 +164,7 @@ const argsSchema = [
   ['n', false], // Can toggle on using hacknet nodes for extra hacking ram (at the expense of hash production)
   ['silent-misfires', false],
   ['use-hacknet-nodes', false],
-  ['initial-max-targets', 2],
+  ['initial-max-targets', 63],
   ['max-steal-percentage', 0.75], // Don't steal more than this in case something goes wrong with timing or scheduling, it's hard to recover from
   ['cycle-timing-delay', 16000],
   ['queue-delay', 1000],
@@ -251,10 +251,10 @@ export async function main (ns) {
   queueDelay = options['queue-delay']
   maxBatches = options['max-batches']
   homeReservedRam = options['reserved-ram']
-  
+
   // if "reserved-ram" is set to 0 reserve 99% of Total Ram
   //if (homeReservedRam == 0)
-    //homeReservedRam = ns.getServerMaxRam(ns.getHostname()) * 0.99
+  //homeReservedRam = ns.getServerMaxRam(ns.getHostname()) * 0.99
 
   // These scripts are started once and expected to run forever (or terminate themselves when no longer needed)
   asynchronousHelpers = [
@@ -2170,7 +2170,7 @@ async function kickstartHackXp (
     singleServerMode =
       singleServerMode ||
       i >= jobHosts.length - 1 - singleServerLimit ||
-        jobHosts[i + 1].totalRam() < 1000 // Switch to single-server mode if running out of hosts with high ram
+      jobHosts[i + 1].totalRam() < 1000 // Switch to single-server mode if running out of hosts with high ram
     etas.push(
       (lastSchedulingResult =
         (await scheduleHackExpCycle(
