@@ -61,6 +61,10 @@ export async function main (ns) {
   var offset = sleepTime / 2
   var gOffset = offset / 4
   var hOffset = offset / 2
+  if (totalRamForRun > maxRam) {
+    ns.print('Not enough RAM for a single run. Try an easier host')
+    kill('/OP/OP.js')
+  }
   while (true) {
     var wsleep = 0 //At one point I made the weaken call sleep so I've kept it around
     var gsleep = WeakenTime - GrowTime - gOffset //Getting the time to have the Growth execution sleep, then shaving some off to beat the weaken execution
