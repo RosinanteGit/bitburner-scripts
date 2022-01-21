@@ -96,9 +96,10 @@ Many helpful folks in there are familiar with my scripts or ones similar to them
 Credit goes to u/__Aimbot__ on Reddit from this Post https://www.reddit.com/r/Bitburner/comments/rm48o1/the_best_hacking_approach_ive_seen_so_far/
 and on alainbryden https://github.com/alainbryden/bitburner-scripts for their great scripts!
 
-1. u need at least 4TB Ram (more is better!) and `Formulas.exe` for this to work!
-2. go to options and set Netscript exec time to 5ms!!!
-3. kill the daemon.js and the other helpers, u can keep running stats.js, work-for-factions.js, host-manager.js etc. if u have enough ram
-4. `run analyze-hack.js --tail` to determine the server u want to milk. (phantasy, the-hub, are usually good targets midgame when megacorp is later on)
-5. to start go in the /OP/ folder and type `run OP.js Servername --tail`
-6. profit!
+1. the script does work with at least 4TB Ram however it needs to be more then 4TB, I have found that a min of 32TB is needed. 8tb and 16tb does not give an error, but it    does not work, as it does not kick off the scripts. 
+2. buy `Formulas.exe` for this to work!
+3. go to options and set Netscript exec time to 5ms!!!
+4. kill the daemon.js and the other helpers, u can keep running stats.js, work-for-factions.js, host-manager.js etc. if u have enough ram
+5. `run analyze-hack.js --tail` to determine the server u want to milk. (phantasy, the-hub, are usually good targets midgame when megacorp is later on)
+6. to start go in the /OP/ folder and type `run OP.js Servername --tail`
+7. profit!
