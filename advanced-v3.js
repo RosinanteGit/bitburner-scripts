@@ -1,4 +1,4 @@
-/** @param {import(".").NS } ns */
+/** @param {import("./Important Scripts").NS } ns */
 export async function main (ns) {
   ns.disableLog('ALL')
 
@@ -270,7 +270,7 @@ export async function main (ns) {
       }
     }
     function buyServer (r) {
-      ns.purchaseServer('SERVER-' + ns.nFormat(r * 1000000000, '0.0b'), r)
+      ns.purchaseServer('daemon-' + ns.nFormat(r * 1000000000, '0.0b'), r)
     }
     if (ns.getPurchasedServers().length < 25 && ram > 0) {
       buyServer(ram)

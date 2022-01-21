@@ -7,6 +7,9 @@ const argsSchema = [
     'download',
     [
       'analyze-hack.js',
+      'advanced-v3.js',
+      'advanced-v4.js',
+      'auto-upgrade.js',
       'cascade-kill.js',
       'cleanup.js',
       'crime.js',

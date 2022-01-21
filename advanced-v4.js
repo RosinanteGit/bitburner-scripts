@@ -7,12 +7,12 @@
  * Intermediate - Advanced Auto Farm + Modules
  * A plug and play, set and forget script with modules that'll farm in a mostly optimised fashion */
 
-/** @param {import("..").NS } ns */
+/** @param {import("./Important Scripts").NS } ns */
 export async function main (ns) {
   const min_server_ram = 0
   const home_ram_reserve = 0
-  //const calc_mathod = 'HIGH PROFIT'// should be one of ['HIGH PROFIT',' HIGH  EXP ']
-  const calc_mathod = ' HIGH  EXP ' // remember to disable the line above when active it.
+  const calc_mathod = 'HIGH PROFIT'// should be one of ['HIGH PROFIT',' HIGH  EXP ']
+  //const calc_mathod = ' HIGH  EXP ' // remember to disable the line above when active it.
   //const calc_mathod = 'N00DLE ONLY'// not test yet
   //configs above could be modified before scripts run.
   //Note: changing configs above have no effect for running scripts.

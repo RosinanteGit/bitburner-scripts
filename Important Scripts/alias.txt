@@ -22,7 +22,7 @@ alias dev="run dev.js"
 
 alias statsc="cd bin; cd svc; run wsStatsConnector.js; home"
 
-alias find="run find.js --tail"
+alias hash="run spend-hacknet-hashes.js -l"
 
 alias op="cd /OP/; run OP.js megacorp --tail"
 

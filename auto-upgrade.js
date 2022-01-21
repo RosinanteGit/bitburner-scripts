@@ -1,4 +1,4 @@
-/** @param {import(".").NS } ns */
+/** @param {import("./other usefull scripts").NS } ns */
 export async function main (ns) {
   /* 
     ns.hacknet-auto.script for Bitburner v0.47.2
