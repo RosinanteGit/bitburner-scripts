@@ -251,7 +251,9 @@ export async function main (ns) {
   queueDelay = options['queue-delay']
   maxBatches = options['max-batches']
   homeReservedRam = options['reserved-ram']
-  //if (homeReservedRam == 0) // if "reserved-ram" is set to 0 reserve 99% of Total Ram
+  
+  // if "reserved-ram" is set to 0 reserve 99% of Total Ram
+  //if (homeReservedRam == 0)
     //homeReservedRam = ns.getServerMaxRam(ns.getHostname()) * 0.99
 
   // These scripts are started once and expected to run forever (or terminate themselves when no longer needed)
