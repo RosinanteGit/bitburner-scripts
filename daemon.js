@@ -54,8 +54,8 @@ let loopInterval = 1000 //ms
 let cycleTimingDelay = 1600
 let queueDelay = 100 // the delay that it can take for a script to start, used to pessimistically schedule things in advance
 let maxBatches = 40 // the max number of batches this daemon will spool up to avoid running out of IRL ram (TODO: Stop wasting RAM by scheduling batches so far in advance. e.g. Grind XP while waiting for cycle start!)
-let maxTargets = 70 // Initial value, will grow if there is an abundance of RAM changed from 0 to 70 to get faster start
-let maxPreppingAtMaxTargets = 10 // The max servers we can prep when we're at our current max targets and have spare RAM changed from 3 to 10
+let maxTargets = 63 // Initial value, will grow if there is an abundance of RAM changed from 0 to 63 to get faster start
+let maxPreppingAtMaxTargets = 3 // The max servers we can prep when we're at our current max targets and have spare RAM
 // Allows some home ram to be reserved for ad-hoc terminal script running and when home is explicitly set as the "preferred server" for starting a helper
 let homeReservedRam = 32
 
