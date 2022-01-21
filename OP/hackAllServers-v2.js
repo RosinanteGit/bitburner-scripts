@@ -3,10 +3,10 @@
  * Only run from home server
  * @param {NS} ns **/
 export async function main (ns) {
-  var constantRam = ns.getScriptRam('hackAllServers-v2.js') //grabbing script RAM values
-  var hackscriptRam = ns.getScriptRam('hack.js')
-  var growscriptRam = ns.getScriptRam('grow.js')
-  var weakscriptRam = ns.getScriptRam('weaken.js')
+  var constantRam = ns.getScriptRam('/OP/hackAllServers-v2.js') //grabbing script RAM values
+  var hackscriptRam = ns.getScriptRam('/OP/hack.js')
+  var growscriptRam = ns.getScriptRam('/OP/grow.js')
+  var weakscriptRam = ns.getScriptRam('/OP/weaken.js')
   var startTime = new Map()
   var waitingTime = new Map()
   var remainingTime = new Map()
@@ -108,19 +108,19 @@ export async function main (ns) {
 
           // Check if the following scritps are running already
           var wIsRunning = ns.isRunning(
-            'weaken.js',
+            '/OP/weaken.js',
             usableServers[i],
             target[iTarget],
             wsleep
           )
           var gIsRunning = ns.isRunning(
-            'grow.js',
+            '/OP/grow.js',
             usableServers[i],
             target[iTarget],
             gsleep
           )
           var hIsRunning = ns.isRunning(
-            'hack.js',
+            '/OP/hack.js',
             usableServers[i],
             target[iTarget],
             hsleep
@@ -422,7 +422,7 @@ export async function main (ns) {
             // Run the script to weak the server
             if (weakThreads[i] > 0) {
               ns.exec(
-                'weaken.js',
+                '/OP/weaken.js',
                 usableServers[i],
                 weakThreads[i],
                 target[iTarget],
@@ -458,7 +458,7 @@ export async function main (ns) {
             // We run the grow threads first on the rootable servers sorted with decreasing amount of growth potential
             if (growThreads[i] > 0) {
               ns.exec(
-                'grow.js',
+                '/OP/grow.js',
                 usableServers[i],
                 growThreads[i],
                 target[iTarget],
@@ -467,7 +467,7 @@ export async function main (ns) {
             }
             if (weakThreads[i] > 0) {
               ns.exec(
-                'weaken.js',
+                '/OP/weaken.js',
                 usableServers[i],
                 weakThreads[i],
                 target[iTarget],
@@ -513,7 +513,7 @@ export async function main (ns) {
             // We run the grow threads first on the rootable servers sorted with decreasing amount of growth potential
             if (hackThreads[i] > 0) {
               ns.exec(
-                'hack.js',
+                '/OP/hack.js',
                 usableServers[i],
                 hackThreads[i],
                 target[iTarget],
@@ -522,7 +522,7 @@ export async function main (ns) {
             }
             if (growThreads[i] > 0) {
               ns.exec(
-                'grow.js',
+                '/OP/grow.js',
                 usableServers[i],
                 growThreads[i],
                 target[iTarget],
@@ -531,7 +531,7 @@ export async function main (ns) {
             }
             if (weakThreads[i] > 0) {
               ns.exec(
-                'weaken.js',
+                '/OP/weaken.js',
                 usableServers[i],
                 weakThreads[i],
                 target[iTarget],
@@ -563,7 +563,7 @@ export async function main (ns) {
  * Copies files in file list to all servers and returns an array of all servers
  */
 async function findAllServers (ns) {
-  const fileList = ['hack.js', 'weaken.js', 'grow.js'] //These files just infinitely hack, weak, and grow respectively.
+  const fileList = ['/OP/hack.js', '/OP/weaken.js', '/OP/grow.js'] //These files just infinitely hack, weak, and grow respectively.
   var q = []
   var serverDiscovered = []
 
