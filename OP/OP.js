@@ -70,7 +70,7 @@ export async function main (ns) {
     var gsleep = WeakenTime - GrowTime - gOffset //Getting the time to have the Growth execution sleep, then shaving some off to beat the weaken execution
     var hsleep = WeakenTime - HackTime - hOffset //Getting time for hack, shaving off more to make sure it beats both weaken and growth
     var UsedRam = ns.getServerUsedRam(server2)
-    if (totalRamForRun >= maxRam - UsedRam == false) {
+    if (totalRamForRun >= maxRam - UsedRam == false && cs == ms) {
       //making sure I have enough RAM to do a full run
       ns.exec('/OP/weaken.js', server2, weakenThreads, server, wsleep, i)
       ns.exec('/OP/grow.js', server2, growThreads, server, gsleep, i)
