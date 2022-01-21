@@ -94,7 +94,7 @@ and on alainbryden https://github.com/alainbryden/bitburner-scripts for their gr
 
 1. u need at least 4TB Ram (more is better!) and `Formulas.exe` for this to work!
 2. go to options and set Netscript exec time to 5ms!!!
-3. kill the daemon.js and the other helpers u can run stats.js, work-for-factions.js, host-manager.js etc.
+3. kill the daemon.js and the other helpers u can keep running stats.js, work-for-factions.js, host-manager.js etc. if u have enough ram
 4. `run analyze-hack.js --tail` to determine the server u want to milk. (phantasy, the-hub, are usually good targets midgame when megacorp is later on)
 5. to start go in the /OP/ folder and type `run OP.js Servername --tail`
 6. profit!
