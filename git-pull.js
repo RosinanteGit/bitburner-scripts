@@ -11,6 +11,7 @@ const argsSchema = [
       'cleanup.js',
       'crime.js',
       'daemon.js',
+      'dev.js',
       'faction-manager.js',
       'farm-intelligence.js',
       'gangs.js',
