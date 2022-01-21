@@ -24,39 +24,51 @@ This way I can just enter `start` in the terminal after each reset, and the rest
 other aliases i use:
 
 open ports and install backdoor
+
 `alias root="run BruteSSH.exe; run FTPCrack.exe; run relaySMTP.exe; run HTTPworm.exe; run SQLInject.exe; run NUKE.exe; backdoor"`
 
 rebuy everything after restart
+
 `alias rebuy="buy BruteSSH.exe; buy FTPCrack.exe; buy relaySMTP.exe; buy HTTPWorm.exe; buy SQLInject.exe; buy ServerProfiler.exe; buy DeepscanV1.exe; buy DeepscanV2.exe; buy AutoLink.exe; buy Formulas.exe"`
 
 start with XP Focus
+
 `alias startxp="run daemon.js -v -x --tail --stock-manipulation --silent-misfires"`
 
 "Broker" if farming with OP
+
 `alias stock="run stockmaster.js --show-market-summary"`
 
 starts worker if farming with OP
+
 `alias work="run work-for-factions.js --fast-crimes-only --no-coding-contracts"`
 
 option to sell hashes as soon as possible
+
 `alias hash="run spend-hacknet-hashes.js -l"`
 
 sell Stocks before restarting!
+
 `alias sell="run stockmaster.js --liquidate"`
 
 invites to Factions preffered
+
 `alias invites="run work-for-factions.js --invites-only --fast-crimes-only --no-coding-contracts"`
 
 start OP.js from home folder
+
 `alias op="cd /OP/; run OP.js megacorp --tail"`
 
 finds good targets and opens OP folder
+
 `alias anal="cd home; run analyze-hack.js; cd OP"`
 
 serverlist
+
 `alias scan="run scan.js"`
 
 open "dev" console for debugging/testing
+
 `alias dev="run dev.js"`
 
 # Disclaimer
