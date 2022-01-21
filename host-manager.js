@@ -14,10 +14,10 @@ let maxPurchasableServerRamExponent = 20
 // the max number of servers you can have in your farm
 let maxPurchasedServers = 25
 // Don't attempt to buy any new servers if we're under this utilization
-let utilizationTarget = 0.3 // changed to buy servers if we under 30% Utilization
+let utilizationTarget = 0.5 // changed to buy servers if we under 30% Utilization
 // Keep at least this much money on hand (so we arent blocked from buying necessary things)
 let reservedMoneyAmount = 0 //250000000; // Enable if needed (Can also use reserve.txt)
-let reservedMoneyPercent = 0.01 // Don't spend more than 99% of our money on temporary RAM
+let reservedMoneyPercent = 0.5 // Don't spend more than 99% of our money on temporary RAM
 let minRamExponent = 10
 // The name to give all purchased servers. Also used to determine which servers were purchased
 const purchasedServerName = 'daemon'
@@ -33,8 +33,8 @@ const argsSchema = [
   ['c', false], // Set to true to run continuously
   ['run-continuously', false],
   ['absolute-reserve', 0], // Set to reserve money
-  ['reserve-percent', 0.01], // Set to reserve a percentage of home money
-  ['utilization-trigger', 0.3], // the percentage utilization that will trigger an attempted purchase
+  ['reserve-percent', 0.5], // Set to reserve a percentage of home money
+  ['utilization-trigger', 0.5], // the percentage utilization that will trigger an attempted purchase
   ['min-ram-exponent', 5] // the minimum amount of ram to purchase
 ]
 
