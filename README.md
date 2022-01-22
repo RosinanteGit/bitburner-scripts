@@ -43,6 +43,10 @@ open ports and install backdoor
 
 `alias work="run work-for-factions.js --fast-crimes-only --no-coding-contracts"`
 
+**getgang.js does a full run to unlock gangs after SF 4.3 (ram costs multiplier are SF 4.1 x16, SF 4.2 x4, SF4.3 x1) it needs a argument to function 18000 is a full run**
+
+`alias gang="run getgang.js 18000"`
+
 **option to sell hashes as soon as possible**
 
 `alias hash="run spend-hacknet-hashes.js -l"`
