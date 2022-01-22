@@ -18,6 +18,7 @@ const argsSchema = [
       'faction-manager.js',
       'farm-intelligence.js',
       'gangs.js',
+      'getgang.js',
       'get-list.js',
       'git-pull.js',
       'hacknet-upgrade-manager.js',
