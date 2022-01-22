@@ -65,7 +65,7 @@ export async function main (ns) {
                 (p.args.includes('--liquidate') || p.args.includes('-l'))
             )
         ) {
-          headers.splice(1, 0, ' ')
+          headers.splice(1, 0, ' ')
           values.push('Liquidating')
         }
       }
@@ -110,7 +110,7 @@ export async function main (ns) {
         values.push(formatNumberShort(karma, 3, 2))
       }
 
-      hook0.innerText = headers.join(' \n')
+      hook0.innerText = headers.join(' \n')
       hook1.innerText = values.join('\n')
     } catch (err) {
       // Might run out of ram from time to time, since we use it dynamically

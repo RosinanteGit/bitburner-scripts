@@ -259,7 +259,7 @@ export async function getNsDataThroughFile_Custom (
   // unless it already exists with the same contents (saves time/ram to check first)
   // If an error occurs, it will write an empty file to avoid old results being misread.
   const commandToFile = `let result = ""; try { result = JSON.stringify(${command}); } catch { }
-        if (ns.read("${fName}") != result) await ns.write("${fName}", result, 'w')`
+      if (ns.read("${fName}") != result) await ns.write("${fName}", result, 'w')`
   // Run the command with auto-retries if it fails
   const pid = await runCommand_Custom(
     ns,

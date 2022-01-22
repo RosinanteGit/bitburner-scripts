@@ -621,7 +621,7 @@ async function updateForecast (ns, allStocks, has4s) {
     if (prepSummary) {
       // Example: AERO  ++   Prob: 54% (t51: 54%, t10: 67%) tLast⇄:190 Vol:0.640% ER: 2.778BP Spread:1.784% ttProfit: 65 Pos: 14.7M long  (held 189 ticks)
       stk.debugLog =
-        `${stk.sym.padEnd(5, ' ')} ${(stk.bullish() ? '+' : '-')
+        `${stk.sym.padEnd(5, ' ')} ${(stk.bullish() ? '+' : '-')
           .repeat(signalStrength)
           .padEnd(3)} ` +
         `Prob:${(stk.prob * 100)
@@ -711,11 +711,11 @@ let launchSummaryTail = async ns => {
   await runCommand(
     ns,
     `ns.disableLog('sleep'); ns.tail(); let lastRead = '';
-        while (true) { 
-            let read = ns.read('${summaryFile}');
-            if (lastRead != read) ns.print(lastRead = read);
-            await ns.sleep(1000); 
-        }`,
+      while (true) { 
+          let read = ns.read('${summaryFile}');
+          if (lastRead != read) ns.print(lastRead = read);
+          await ns.sleep(1000); 
+      }`,
     summaryTailScript
   )
 }

@@ -922,7 +922,7 @@ async function manageFilteredSubset (
         subset.length
       } ${subsetName} Augmentations in Optimized Purchase Order (*'s are desired augs and/or stats: ${options[
         'stat-desired'
-      ].join(', ')}):\n  ${subsetSorted.join('\n  ')}`
+      ].join(', ')}):\n  ${subsetSorted.join('\n  ')}`
     )
   outputRows.push(
     `Total Cost of ${subset.length} ${subsetName}:`.padEnd(37) +
@@ -1272,13 +1272,13 @@ function displayJoinedFactionSummary (ns, alsoPrintToTerminal) {
   let summary = `${joinedFactions.length} Joined Factions:`
   let noaugs = joinedFactions.filter(f => f.unownedAugmentations().length == 0)
   if (noaugs.length > 0)
-    summary += `\n  ${
+    summary += `\n  ${
       noaugs.length
     } joined factions have no unowned augs remaining: "${noaugs
       .map(f => f.name)
       .join('", "')}"`
   for (const faction of joinedFactions.filter(f => !noaugs.includes(f)))
-    summary += `\n  ${faction.name}: ${
+    summary += `\n  ${faction.name}: ${
       faction.unownedAugmentations().length
     } augs remaining (${faction.unownedAugmentations().join(', ')})`
   log(ns, summary, alsoPrintToTerminal)
@@ -1332,13 +1332,13 @@ function displayFactionSummary (
   let summary = `${summaryFactions.length} factions with augmentations (sorted by total ${sortBy}):`
   // Creates the table header row
   let getHeaderRow = countName =>
-    `\n   Faction Name ${countName.padStart(9)} / Total Augs ` +
+    `\n   Faction Name ${countName.padStart(9)} / Total Augs ` +
     relevantAugStats.map(key => shorten(key).padStart(4)).join(' ')
   // Creates the string to display a single faction's stats in the table
   let getFactionSummary = faction => {
     const totalMults = faction.totalUnownedMults()
     return (
-      `\n ${faction.joined ? '✓' : faction.invited ? '✉' : '✗'} ${
+      `\n ${faction.joined ? '✓' : faction.invited ? '✉' : '✗'} ${
         faction.name
       } `.padEnd(32) + // TODO: Display faction rep / max aug rep
       `${String(faction.unownedAugmentations().length).padStart(2)} / ${String(
