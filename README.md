@@ -49,11 +49,9 @@ open ports and install backdoor
 
 `alias gang="run getgang.js 18000"`
 
-**i added autocrime.js as an alternative without the need of SF 4.3, it needs a word from your slums as first argument: homicide, Drugs, Mug, Rob etc. then as second argument u need the number of repeats, for a full run that would be 18000 so to start u could type** 
+**i added autocrime.js as an alternative without the need of SF 4.3, it needs a word from your slums as first argument: homicide, Drugs, Mug, Rob etc. then as second argument u need the number of repeats, for a full run that would be 18000. I added --tail so u can close it once its running to make sure u can abort!!!!**
 
 `alias autocrime="run autocrime.js homicide 18000 --tail"`
-
-**for a full run i added --tail so u can close it once its running to make sure u can abort!!!!**
 
 
 
