@@ -9,6 +9,7 @@ const argsSchema = [
       'analyze-hack.js',
       'advanced-v3.js',
       'advanced-v4.js',
+      'autocrime.js',
       'auto-upgrade.js',
       'cascade-kill.js',
       'cleanup.js',
