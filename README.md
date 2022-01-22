@@ -43,7 +43,11 @@ open ports and install backdoor
 
 `alias work="run work-for-factions.js --fast-crimes-only --no-coding-contracts"`
 
+
+
 **getgang.js does a full run to unlock gangs after SF 4.3 (ram costs multiplier are SF 4.1 x16, SF 4.2 x4, SF4.3 x1) it needs a argument to function 18000 is a full run**
+
+`alias gang="run getgang.js 18000"`
 
 **i added autocrime.js as an alternative without the need of SF 4.3, it needs a word from your slums as first argument: homicide, Drugs, Mug, Rob etc. then as second argument u need the number of repeats, for a full run that would be 18000 so to start u could type** 
 
@@ -51,7 +55,7 @@ open ports and install backdoor
 
 **for a full run i added --tail so u can close it once its running to make sure u can abort!!!!**
 
-`alias gang="run getgang.js 18000"`
+
 
 **option to sell hashes as soon as possible**
 
@@ -84,6 +88,8 @@ open ports and install backdoor
 **open "dev" console for debugging/testing**
 
 `alias dev="run dev.js"`
+
+
 
 # Disclaimer
 
