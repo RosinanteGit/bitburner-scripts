@@ -215,51 +215,6 @@ export async function main (ns) {
       `WARNING: Singularity functions are much more expensive with lower levels of SF4 (you have SF4.${dictSourceFiles[4]}). ` +
         `You may encounter RAM issues with and have to wait until you have more RAM available to run this script successfully.`
     )
-export async function main(ns) {
-    disableLogs(ns, ['sleep', 'getServerRequiredHackingLevel'])
-    ns.tail()
-    options = ns.flags(argsSchema);
-    const desiredAugStats = (options['desired-stats'] || []);
-    const firstFactions = options.first = (options.first || []).map(f => f.replaceAll('_', ' '));
-    let skipFactionsConfig = options.skip = (options.skip || []).map(f => f.replaceAll('_', ' '));
-    noFocus = options['no-focus'];
-    noStudying = options['no-studying'] || noFocus; // Can't study if we aren't allowed to steal focus
-    noCrime = options['no-crime'] || noFocus; // Can't crime if we aren't allowed to steal focus
-    crimeFocus = options['crime-focus'];
-    prioritizeInvites = options['prioritize-invites'];
-    if (crimeFocus && noFocus)
-        return ns.tprint("ERROR: Cannot use --no-focus and --crime-focus at the same time. You need to focus to do crime!");
-    if (desiredAugStats.length == 0)
-        desiredAugStats.push(...(crimeFocus ? ['str', 'def', 'dex', 'agi', 'faction_rep', 'hacking', 'hacknet'] : ['hacking', 'faction_rep', 'company_rep', 'charisma', 'hacknet']))
-    fastCrimesOnly = options['fast-crimes-only'];
-    // Log command line args used
-    if (firstFactions.length > 0) ns.print(`--first factions: ${firstFactions.join(", ")}`);
-    if (skipFactionsConfig.length > 0) ns.print(`--skip factions: ${skipFactionsConfig.join(", ")}`);
-    if (desiredAugStats.length > 0) ns.print(`--desired-stats matching: ${desiredAugStats.join(", ")}`);
-    if (fastCrimesOnly) ns.print(`--fast-crimes-only`);
-
-
-    let dictSourceFiles = await getActiveSourceFiles(ns); // Find out what source files the user has unlocked
-    if (!(4 in dictSourceFiles))
-        return ns.tprint("ERROR: You cannot automate working for factions until you have unlocked singularity access (SF4).");
-    else if (dictSourceFiles[4] < 3)
-        ns.tprint(`WARNING: Singularity functions are much more expensive with lower levels of SF4 (you have SF4.${dictSourceFiles[4]}). ` +
-            `You may encounter RAM issues with and have to wait until you have more RAM available to run this script successfully.`);
-
-    let bitnodeMults = await tryGetBitNodeMultipliers(ns); // Find out the current bitnode multipliers (if available)
-    repToDonate = 150 * (bitnodeMults?.RepToDonateToFaction || 1);
-
-    // Get some information about gangs (if unlocked)
-    if (2 in dictSourceFiles) {
-        const gangInfo = await getNsDataThroughFile(ns, 'ns.gang.inGang() ? ns.gang.getGangInformation() : false', '/Temp/gang-stats.txt');
-        if (gangInfo && gangInfo.faction) {
-            playerGang = gangInfo.faction;
-            let configGangIndex = preferredEarlyFactionOrder.findIndex(f => f === "Slum Snakes");
-            if (playerGang && configGangIndex != -1) // If we're in a gang, don't need to earn an invite to slum snakes anymore
-                preferredEarlyFactionOrder.splice(configGangIndex, 1);
-            allGangFactions = await getNsDataThroughFile(ns, 'Object.keys(ns.gang.getOtherGangInformation())', '/Temp/gang-names.txt') || [];
-        }
-    }
 
   let bitnodeMults = await tryGetBitNodeMultipliers(ns) // Find out the current bitnode multipliers (if available)
   repToDonate = 150 * (bitnodeMults?.RepToDonateToFaction || 1)
@@ -1493,7 +1448,4 @@ export async function workForMegacorpFactionInvite (
       ).toLocaleString()} inFaction: ${player.factions.includes(factionName)}`
   )
   return false
-    ns.print(`Stopped working for "${companyName}" repRequiredForFaction: ${repRequiredForFaction.toLocaleString()} ` +
-        `currentReputation: ${Math.round(currentReputation).toLocaleString()} inFaction: ${player.factions.includes(factionName)}`);
-    return false;
 }
