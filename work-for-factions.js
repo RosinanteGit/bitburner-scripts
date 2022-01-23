@@ -211,7 +211,7 @@ export async function main (ns) {
       'ERROR: You cannot automate working for factions until you have unlocked singularity access (SF4).'
     )
   else if (dictSourceFiles[4] < 3)
-    return ns.tprint(
+    ns.tprint(
       `WARNING: Singularity functions are much more expensive with lower levels of SF4 (you have SF4.${dictSourceFiles[4]}). ` +
         `You may encounter RAM issues with and have to wait until you have more RAM available to run this script successfully.`
     )
