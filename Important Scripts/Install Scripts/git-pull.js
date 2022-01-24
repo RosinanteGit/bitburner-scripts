@@ -1,13 +1,88 @@
 let options
 const argsSchema = [
-  ['github', 'alainbryden'],
+  ['github', 'RosinanteGit'],
   ['repository', 'bitburner-scripts'],
   ['branch', 'main'],
-  ['download', []], // By default, all supported files in the repository will be downloaded. Override with just a subset of files here
+  [
+    'download',
+    [
+      'analyze-hack.js',
+      'advanced-v3.js',
+      'advanced-v4.js',
+      'autocrime.js',
+      'auto-upgrade.js',
+      'cascade-kill.js',
+      'cleanup.js',
+      'crime.js',
+      'daemon.js',
+      'dev.js',
+      'faction-manager.js',
+      'farm-intelligence.js',
+      'gangs.js',
+      'getgang.js',
+      'get-list.js',
+      'git-pull.js',
+      'hacknet-upgrade-manager.js',
+      'helpers.js',
+      'host-manager.js',
+      'remove-worst-server.js',
+      'reserve.js',
+      'reserve.txt',
+      'run-command.js',
+      'scan.js',
+      'sleeve.js',
+      'spend-hacknet-hashes.js',
+      'stats.js',
+      'stockmaster.js',
+      'work-for-factions.js',
+      '/Flags/deleting.txt',
+      '/Remote/grow-target.js',
+      '/Remote/hack-target.js',
+      '/Remote/manualhack-target.js',
+      '/Remote/weak-target.js',
+      '/Tasks/backdoor-all-servers.js',
+      '/Tasks/backdoor-all-servers.js.backdoor-one.js',
+      '/Tasks/contractor.js',
+      '/Tasks/contractor.js.solver.js',
+      '/Tasks/program-manager.js',
+      '/Tasks/ram-manager.js',
+      '/Tasks/run-with-delay.js',
+      '/Tasks/tor-manager.js',
+      '/Tasks/write-file.js',
+      '/OP/OP.js',
+      '/OP/grow.js',
+      '/OP/hack.js',
+      '/OP/weaken.js',
+      '/OP/hackAllServers-v2.js'
+    ]
+  ], // By default, all supported files in the repository will be downloaded. Override with just a subset of files here
   ['new-file', []], // If a repository listing fails, only files returned by ns.ls() will be downloaded. You can add additional files to seek out here.
   ['subfolder', ''], // Can be set to download to a sub-folder that is not part of the remote repository structure
   ['extension', ['.js', '.ns', '.txt', '.script']], // Files to download by extension
-  ['omit-folder', ['/Temp/']] // Folders to omit
+  [
+    'omit-folder',
+    [
+      '/Temp/',
+      '/Important Scripts/',
+      '/Important Scripts/Install Scripts/',
+      '/Important Scripts/Standard Scripts/',
+      '/Important Scripts/Tutorial Scripts/',
+      '/lib/',
+      '/bin/',
+      '/bin/simple/',
+      '/bin/svc/',
+      '/bin/util/',
+      '/math/',
+      '/other usefull scripts/',
+      '/test/',
+      '/test/Advanced_Hacking/',
+      '/test/Catalyzer/',
+      '/test/Hack-Manager/',
+      '/test/OP old/',
+      '/test/OPv1/',
+      '/test/Scripts from Stats Viewer Guy/'
+    ]
+  ] // Folders to omit
 ]
 
 export function autocomplete (data, args) {
@@ -26,18 +101,24 @@ export function autocomplete (data, args) {
  * TODO: Some way to list all files in the repository and/or download them all. **/
 export async function main (ns) {
   options = ns.flags(argsSchema)
+  if (options.subfolder && !options.subfolder.startsWith('/'))
+    options.subfolder = '/' + options.subfolder // Game requires folders to have a leading slash. Add one if it's missing.
   const baseUrl = `https://raw.githubusercontent.com/${options.github}/${options.repository}/${options.branch}/`
   const filesToDownload = options['new-file'].concat(
     options.download.length > 0 ? options.download : await repositoryListing(ns)
   )
   for (const localFilePath of filesToDownload) {
+    let fullLocalFilePath = pathJoin(options.subfolder, localFilePath)
     const remoteFilePath = baseUrl + localFilePath
-    ns.print(`Trying to update "${localFilePath}" from ${remoteFilePath} ...`)
+    ns.print(
+      `Trying to update "${fullLocalFilePath}" from ${remoteFilePath} ...`
+    )
     if (
-      await ns.wget(
+      (await ns.wget(
         `${remoteFilePath}?ts=${new Date().getTime()}`,
-        (options.subfolder ? options.subfolder + '/' : '') + localFilePath
-      )
+        fullLocalFilePath
+      )) &&
+      (await rewriteFileForSubfolder(ns, fullLocalFilePath))
     )
       ns.tprint(
         `SUCCESS: Updated "${localFilePath}" to the latest from ${remoteFilePath}`
@@ -47,6 +128,33 @@ export async function main (ns) {
         `WARNING: "${localFilePath}" was not updated. (Currently running or not located at ${remoteFilePath} )`
       )
   }
+}
+
+/** Joins all arguments as components in a path, e.g. pathJoin("foo", "bar", "/baz") = "foo/bar/baz" **/
+function pathJoin (...args) {
+  return args
+    .filter(s => !!s)
+    .join('/')
+    .replace(/\/\/+/g, '/')
+}
+
+/** @param {NS} ns
+ * Rewrites a file with path substitions to handle downloading to a subfolder. **/
+export async function rewriteFileForSubfolder (ns, path) {
+  if (!options.subfolder || path.includes('git-pull.js')) return true
+  let contents = ns.read(path)
+  // Replace subfolder reference in helpers.js getFilePath:
+  contents = contents.replace(
+    `const subfolder = ''`,
+    `const subfolder = '${options.subfolder}/'`
+  )
+  // Replace any imports, which can't use getFilePath:
+  contents = contents.replace(
+    /from '(\.\/)?(.*)'/g,
+    `from '${pathJoin(options.subfolder, '$2')}'`
+  )
+  await ns.write(path, contents, 'w')
+  return true
 }
 
 /** @param {NS} ns
