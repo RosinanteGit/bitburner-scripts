@@ -115,6 +115,18 @@ export async function main (ns) {
     } catch (err) {
       // Might run out of ram from time to time, since we use it dynamically
       ns.print('ERROR: Update Skipped: ' + String(err))
+            const sharePower = ns.getSharePower();
+            if (sharePower > 1) {
+                headers.push("Share Pwr");
+                values.push(formatNumberShort(sharePower, 3, 2));
+            }
+
+            hook0.innerText = headers.join(" \n");
+            hook1.innerText = values.join("\n");
+        } catch (err) { // Might run out of ram from time to time, since we use it dynamically
+            ns.print("ERROR: Update Skipped: " + String(err));
+        }
+        await ns.sleep(1000);
     }
     await ns.sleep(1000)
   }
