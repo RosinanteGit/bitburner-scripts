@@ -42,7 +42,7 @@ let loopInterval = 1000; //ms
 let cycleTimingDelay = 1600;
 let queueDelay = 100; // the delay that it can take for a script to start, used to pessimistically schedule things in advance
 let maxBatches = 40; // the max number of batches this daemon will spool up to avoid running out of IRL ram (TODO: Stop wasting RAM by scheduling batches so far in advance. e.g. Grind XP while waiting for cycle start!)
-let maxTargets; // Initial value, will grow if there is an abundance of RAM
+let maxTargets = 63 // Initial value, will grow if there is an abundance of RAM
 let maxPreppingAtMaxTargets = 3; // The max servers we can prep when we're at our current max targets and have spare RAM
 // Allows some home ram to be reserved for ad-hoc terminal script running and when home is explicitly set as the "preferred server" for starting a helper 
 let homeReservedRam = 32;
@@ -141,7 +141,7 @@ const argsSchema = [
   ['n', false], // Can toggle on using hacknet nodes for extra hacking ram (at the expense of hash production)
   ['use-hacknet-nodes', false], // Same as above
   ['silent-misfires', false], // Instruct remote scripts not to alert when they misfire
-  ['initial-max-targets', 2], // Initial number of servers to target / prep (TODO: Scale this as BN progression increases)
+  ['initial-max-targets', 63], // Initial number of servers to target / prep (TODO: Scale this as BN progression increases)
   ['max-steal-percentage', 0.75], // Don't steal more than this in case something goes wrong with timing or scheduling, it's hard to recover from
   ['cycle-timing-delay', 16000], // Time 
   ['queue-delay', 1000], // Delay before the first script begins, to give time for all scripts to be scheduled
