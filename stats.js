@@ -49,10 +49,10 @@ export async function main(ns) {
                     values.push(formatMoney(stkPortfolio));
                 }
             }
-            headers.push("ScrInc");
+            headers.push("Income");
             values.push(formatMoney(ns.getScriptIncome()[0], 3, 2) + '/sec');
 
-            headers.push("ScrExp");
+            headers.push("Exp");
             values.push(formatNumberShort(ns.getScriptExpGain(), 3, 2) + '/sec');
 
             if (2 in dictSourceFiles) { // Gang income is only relevant once gangs are unlocked
