@@ -41,6 +41,7 @@ const argsSchema = [
       '/Remote/hack-target.js',
       '/Remote/manualhack-target.js',
       '/Remote/weak-target.js',
+      '/Remote/share.js',
       '/Tasks/backdoor-all-servers.js',
       '/Tasks/backdoor-all-servers.js.backdoor-one.js',
       '/Tasks/contractor.js',
