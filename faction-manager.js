@@ -1,4 +1,3 @@
-
 import { formatNumberShort, formatMoney, getNsDataThroughFile, getActiveSourceFiles } from './helpers.js'
 
 // Prefer to join factions in (ish) order of most expensive to least expensive 
