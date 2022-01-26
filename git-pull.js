@@ -46,6 +46,7 @@ const argsSchema = [
       '/Tasks/backdoor-all-servers.js.backdoor-one.js',
       '/Tasks/contractor.js',
       '/Tasks/contractor.js.solver.js',
+      '/Tasks/crack-host.js',
       '/Tasks/program-manager.js',
       '/Tasks/ram-manager.js',
       '/Tasks/run-with-delay.js',
