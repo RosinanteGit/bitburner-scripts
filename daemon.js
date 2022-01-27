@@ -42,7 +42,7 @@ let loopInterval = 1000; //ms
 let cycleTimingDelay = 1600;
 let queueDelay = 100; // the delay that it can take for a script to start, used to pessimistically schedule things in advance
 let maxBatches = 40; // the max number of batches this daemon will spool up to avoid running out of IRL ram (TODO: Stop wasting RAM by scheduling batches so far in advance. e.g. Grind XP while waiting for cycle start!)
-let maxTargets = 63 // Initial value, will grow if there is an abundance of RAM
+let maxTargets; // Initial value, will grow if there is an abundance of RAM
 let maxPreppingAtMaxTargets = 3; // The max servers we can prep when we're at our current max targets and have spare RAM
 // Allows some home ram to be reserved for ad-hoc terminal script running and when home is explicitly set as the "preferred server" for starting a helper 
 let homeReservedRam = 32;
@@ -139,7 +139,7 @@ const argsSchema = [
     ['n', false], // Can toggle on using hacknet nodes for extra hacking ram (at the expense of hash production)
     ['use-hacknet-nodes', false], // Same as above
     ['silent-misfires', false], // Instruct remote scripts not to alert when they misfire
-    ['initial-max-targets', 63], // Initial number of servers to target / prep (TODO: Scale this as BN progression increases)
+    ['initial-max-targets', 2], // Initial number of servers to target / prep (TODO: Scale this as BN progression increases)
     ['max-steal-percentage', 0.75], // Don't steal more than this in case something goes wrong with timing or scheduling, it's hard to recover from
     ['cycle-timing-delay', 16000], // Time 
     ['queue-delay', 1000], // Delay before the first script begins, to give time for all scripts to be scheduled
@@ -233,11 +233,14 @@ export async function main(ns) {
     asynchronousHelpers.forEach(helper => helper.requiredServer = "home"); // All helpers should be launched at home since they use tempory scripts, and we only reserve ram on home
     // These scripts are spawned periodically (at some interval) to do their checks, with an optional condition that limits when they should be spawned
     let shouldUpgradeHacknet = () => !shouldReserveMoney() && (whichServerIsRunning(ns, "hacknet-upgrade-manager.js", false) === null);
+    // In BN8 (stocks-only bn) and others with hack income disabled, don't waste money on improving hacking infrastructure unless we have plenty of money to spare
+    let shouldImproveHacking = () => bitnodeMults.ScriptHackMoneyGain != 0 || playerStats.bitNodeN != 8 || ns.getServerMoneyAvailable("home") > 1e10;
+
     periodicScripts = [
         // Buy tor as soon as we can if we haven't already, and all the port crackers
         { interval: 29000, name: "/Tasks/tor-manager.js", shouldRun: () => 4 in dictSourceFiles && !addedServerNames.includes("darkweb") },
-        { interval: 30000, name: "/Tasks/program-manager.js", shouldRun: () => 4 in dictSourceFiles && getNumPortCrackers() != 5 },
-        { interval: 31000, name: "/Tasks/ram-manager.js", shouldRun: () => 4 in dictSourceFiles && dictSourceFiles[4] >= 2 && !shouldReserveMoney() && (getTotalNetworkUtilization() > 0.85 || xpOnly) },
+        { interval: 30000, name: "/Tasks/program-manager.js", shouldRun: () => 4 in dictSourceFiles && getNumPortCrackers() != 5 && (getNumPortCrackers() < 3 || shouldImproveHacking()) },
+        { interval: 31000, name: "/Tasks/ram-manager.js", shouldRun: () => 4 in dictSourceFiles && dictSourceFiles[4] >= 2 && !shouldReserveMoney() && (getTotalNetworkUtilization() > 0.85 || xpOnly) && shouldImproveHacking() },
         // Buy every hacknet upgrade with up to 4h payoff if it is less than 10% of our current money or 8h if it is less than 1% of our current money
         { interval: 32000, name: "hacknet-upgrade-manager.js", shouldRun: shouldUpgradeHacknet, args: () => ["-c", "--max-payoff-time", "4h", "--max-spend", ns.getServerMoneyAvailable("home") * 0.1] },
         { interval: 33000, name: "hacknet-upgrade-manager.js", shouldRun: shouldUpgradeHacknet, args: () => ["-c", "--max-payoff-time", "8h", "--max-spend", ns.getServerMoneyAvailable("home") * 0.01] },
@@ -249,7 +252,7 @@ export async function main(ns) {
         },
         { interval: 51000, name: "/Tasks/contractor.js", requiredServer: "home" },
         { interval: 110000, name: "/Tasks/backdoor-all-servers.js", requiredServer: "home", shouldRun: () => 4 in dictSourceFiles },
-        { interval: 111000, name: "host-manager.js", requiredServer: "home", shouldRun: () => !shouldReserveMoney() },
+        { interval: 111000, name: "host-manager.js", requiredServer: "home", shouldRun: () => !shouldReserveMoney() && shouldImproveHacking() },
     ];
     periodicScripts.forEach(tool => tool.name = getFilePath(tool.name));
     hackTools = [
@@ -540,7 +543,7 @@ async function doTargetingLoop(ns) {
 
             // Use any unspent RAM on share.
             const maxShareUtilization = options['share-max-utilization']
-            if (!isWorkCapped() && utilizationPercent < maxShareUtilization && (Date.now() - lastShareTime) > options['share-cooldown'] &&
+            if (failed.length <= 0 && utilizationPercent < maxShareUtilization && (Date.now() - lastShareTime) > options['share-cooldown'] &&
                 !options['no-share'] && (options['share'] || network.totalMaxRam > 1024)) { // If not explicitly enabled or disabled, auto-enable share at 1TB of network RAM
                 let shareTool = getTool("share");
                 let shareThreads = Math.floor(shareTool.getMaxThreads() * maxShareUtilization);
@@ -549,7 +552,7 @@ async function doTargetingLoop(ns) {
                     await arbitraryExecution(ns, getTool('share'), shareThreads, [Date.now()], null, true) // Note: Need a unique argument to multiple parallel share scripts on the same server
                     lastShareTime = Date.now();
                 }
-            }// else log(`Not Sharing. workCapped: ${isWorkCapped()} utilizationPercent: ${utilizationPercent} maxShareUtilization: ${maxShareUtilization} cooldown: ${formatDuration(Date.now() - lastShareTime)} networkRam: ${network.totalMaxRam}`);
+            } // else log(`Not Sharing. workCapped: ${isWorkCapped()} utilizationPercent: ${utilizationPercent} maxShareUtilization: ${maxShareUtilization} cooldown: ${formatDuration(Date.now() - lastShareTime)} networkRam: ${network.totalMaxRam}`);
 
             // Log some status updates
             let keyUpdates = `Of ${serverListByFreeRam.length} total servers:\n > ${noMoney.length} were ignored (owned or no money)`;
@@ -941,7 +944,8 @@ async function performScheduling(ns, currentTarget, snapshot) {
             if (["hack", "grow"].includes(schedItem.toolShortName)) // Push an arg used by remote hack/grow tools to determine whether it should manipulate the stock market
                 args.push(stockMode && (schedItem.toolShortName == "hack" && shouldManipulateHack[currentTarget.name] || schedItem.toolShortName == "grow" && shouldManipulateGrow[currentTarget.name]) ? 1 : 0);
             if (["hack", "weak"].includes(schedItem.toolShortName))
-                args.push(options['silent-misfires'] || (schedItem.toolShortName == "hack" && bitnodeMults.ScriptHackMoneyGain == 0) ? 1 : 0); // Optional arg to disable toast warnings about a failed hack if hacking money gain is disabled
+                args.push(options['silent-misfires'] || // Optional arg to disable toast warnings about a failed hack if hacking money gain is disabled
+                    (schedItem.toolShortName == "hack" && (bitnodeMults.ScriptHackMoneyGain == 0 || playerStats.bitNodeN == 8)) ? 1 : 0); // Disable automatically in BN8 (hack income disabled)
             args.push(loopingMode ? 1 : 0); // Argument to indicate whether the cycle should loop perpetually
             if (recoveryThreadPadding > 1 && ["weak", "grow"].includes(schedItem.toolShortName))
                 schedItem.threadsNeeded *= recoveryThreadPadding; // Only need to pad grow/weaken threads
