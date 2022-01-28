@@ -1,11 +1,12 @@
 /** @param {NS} ns **/
-export async function main (ns) {
+export async function main(ns) {
   var server = ns.args[0] //Host to hack
   var server2 = ns.getHostname() //Server to run scripts on
   var i = 0
   var c = 0
   var player = ns.getPlayer()
   var fserver = ns.getServer(server)
+  // Added some scripts from daemon.js and his helpers to the Ram Cost Calculation
   var h = ns.getScriptRam('host-manager.js')
   var j = ns.getScriptRam('/Temp/join-faction-loop.js')
   var a = ns.getScriptRam('auto-upgrade.js')
@@ -19,8 +20,9 @@ export async function main (ns) {
   var hackscriptRam = ns.getScriptRam('/OP/hack.js')
   var growscriptRam = ns.getScriptRam('/OP/grow.js')
   var weakenscriptRam = ns.getScriptRam('/OP/weaken.js')
-  var maxRam = ns.getServerMaxRam(server2) - contstantRam - b - n - x - s - m - t - a - j - h //getting 99% of total RAM I can use that exclude the OP script and 32GB
-  var weakenThreads = 2000 - ns.getServerMinSecurityLevel(server) / 0.05
+  var maxRam = ns.getServerMaxRam(server2) - contstantRam - b - n - x - s - m - t - a - j - h //getting 100% of total RAM I can use that exclude the OP script and 32GB
+  var weakenThreads = (hackThreads * 0.002 + weakenThreads * 0.04) / 0.05 // getting exact number of weaken threads new Formula
+  //var weakenThreads = 2000 - ns.getServerMinSecurityLevel(server) / 0.05 // old
   var maxGrowThreads = maxRam / growscriptRam - weakenscriptRam * 2000
   var cs = ns.getServerSecurityLevel(server)
   var ms = ns.getServerMinSecurityLevel(server)
@@ -55,9 +57,10 @@ export async function main (ns) {
   WeakenTime = ns.formulas.hacking.weakenTime(fserver, player)
   var GrowTime = ns.formulas.hacking.growTime(fserver, player)
   var HackTime = ns.formulas.hacking.hackTime(fserver, player)
-  var growThreads = Math.round(2.3 / (GPercent - 1)) //Getting the amount of threads I need to grow 200%.  I only need 100% but I'm being conservative here
-  var hackThreads = Math.round(50 / HPercent) //Getting the amount of threads I need to hack 50% of the funds
-  weakenThreads = Math.round(weakenThreads - growThreads * 0.004) //Getting required threads to fully weaken the server
+  // changed Math.round to math.ceil on Grow and Weaken Threads and to math.floor on Hack Threads
+  var growThreads = Math.ceil(2.3 / (GPercent - 1)) //Getting the amount of threads I need to grow 200%.  I only need 100% but I'm being conservative here
+  var hackThreads = Math.floor(75 / HPercent) //Getting the amount of threads I need to hack 75% of the funds
+  weakenThreads = Math.ceil((cs - ms) + (growThreads * 0.004)) / 0.05 // Getting required threads to fully weaken the server new Formula
   var totalRamForRun =
     hackscriptRam * hackThreads +
     growscriptRam * growThreads +
