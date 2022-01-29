@@ -1,10 +1,4 @@
-let factionServers = [
-  'CSEC',
-  'avmnite-02h',
-  'I.I.I.I',
-  'run4theh111z',
-  'w0r1d_d43m0n'
-]
+let factionServers = ["CSEC", "avmnite-02h", "I.I.I.I", "run4theh111z", "w0r1d_d43m0n"];
 let css = `<style id="scanCSS">
         .w  {white-space:nowrap}
         .sc {white-space:pre; color:#ccc; font:14px monospace; line-height: 16px; }
@@ -19,22 +13,19 @@ let css = `<style id="scanCSS">
         .sc .backdoor {color:#6f3; font:12px monospace}
         .sc .backdoor > a {cursor:pointer; text-decoration:underline;}
         .sc .cct {color:#0ff;}
-    </style>`
-let doc = eval('document')
-let tprint = html =>
-  doc
-    .getElementById('terminal')
-    .insertAdjacentHTML('beforeend', `<li>${html}</li>`)
+    </style>`;
+let doc = eval("document");
+let tprint = html => doc.getElementById("terminal").insertAdjacentHTML('beforeend', `<li>${html}</li>`);
 /** @param {NS} ns **/
 export let main = ns => {
-  let tIn = doc.getElementById('terminal-input')
-  let tEv = tIn[Object.keys(tIn)[1]]
-  let priorCss = doc.getElementById('scanCSS')
-  if (priorCss) priorCss.parentNode.removeChild(priorCss) // Remove old CSS to facilitate tweaking css above
-  doc.head.insertAdjacentHTML('beforeend', css)
-  let serverInfo = x => {
-    return ns.getServer(x) // Costs 2 GB. If you can't don't need backdoor links, uncomment and use the alternate implementations below
-    /* return {
+    let tIn = doc.getElementById("terminal-input");
+    let tEv = tIn[Object.keys(tIn)[1]];
+    let priorCss = doc.getElementById("scanCSS");
+    if (priorCss) priorCss.parentNode.removeChild(priorCss); // Remove old CSS to facilitate tweaking css above
+    doc.head.insertAdjacentHTML('beforeend', css);
+    let serverInfo = (x) => {
+        return ns.getServer(x); // Costs 2 GB. If you can't don't need backdoor links, uncomment and use the alternate implementations below
+        /* return {
             requiredHackingSkill: ns.getServerRequiredHackingLevel(x),
             hasAdminRights: ns.hasRootAccess(x),
             purchasedByPlayer: x.includes('daemon') || x.includes('hacknet'),
@@ -56,25 +47,28 @@ export let main = ns => {
                 <span class="hack ${(reqHack <= myHack ? 'green' : 'red')}">(${reqHack})</span>
                 ${(shouldBackdoor ? '<span class="backdoor">[<a>backdoor</a>]</span>' : '')}
                 ${contracts.map(c => `<span class="cct" title="${c}">@</span>`)}
-            </span>`
-      )
-    }
-  let tcommand = x => {
-    tIn.value = x
-    tEv.onChange({ target: tIn })
-    tEv.onKeyDown({ keyCode: '13', preventDefault: () => 0 })
-  }
+            </span>`;
+        };
+    let tcommand = x => {
+        tIn.value = x;
+        tEv.onChange({ target: tIn });
+        tEv.onKeyDown({ keyCode: "13", preventDefault: () => 0 });
+    };
 
-  let addSc = (x = s[0], p1 = ['\n'], o = p1.join('') + fName(x)) => {
-    for (let i = 0; i < s.length; i++) {
-      if (p[i] != x) continue
-      let p2 = p1.slice()
-      p2[p2.length - 1] = p2[
-        p2.push(p.slice(i + 1).includes(p[i]) ? '├╴' : '└╴') - 2
-      ]
-        .replace('├╴', '│ ')
-        .replace('└╴', '  ')
-      o += addSc(s[i], p2)
+    let addSc = (x = s[0], p1 = ["\n"], o = p1.join("") + fName(x)) => {
+        for (let i = 0; i < s.length; i++) {
+            if (p[i] != x) continue;
+            let p2 = p1.slice();
+            p2[p2.length - 1] = p2[p2.push(p.slice(i + 1).includes(p[i]) ? "├╴" : "└╴") - 2].replace("├╴", "│ ").replace("└╴", "  ");
+            o += addSc(s[i], p2);
+        }
+        return o;
+    };
+    let ordering = (a, b) => {
+        let d = ns.scan(a).length - ns.scan(b).length; // Sort servers with fewer connections towards the top.
+        d = d != 0 ? d : serverInfo(b).purchasedByPlayer - serverInfo(a).purchasedByPlayer; // Purchased servers to the very top
+        d = d != 0 ? d : a.slice(0, 2).toLowerCase().localeCompare(b.slice(0, 2).toLowerCase()); // Hack: compare just the first 2 chars to keep purchased servers in order purchased
+        return d;
     }
     for (let i = 0, j; i < s.length; i++)
         for (j of ns.scan(s[i]).sort(ordering))
