@@ -10,7 +10,7 @@ let maxPurchasedServers = 25;
 // Don't attempt to buy any new servers if we're under this utilization
 let utilizationTarget = 0.5;
 // Keep at least this much money on hand (so we arent blocked from buying necessary things)
-let reservedMoneyAmount = 250000000000; // Enable if needed (Can also use reserve.txt)
+let reservedMoneyAmount = 0; //250000000; // Enable if needed (Can also use reserve.txt)
 let reservedMoneyPercent = 0.99; // Don't spend more than 1% of our money on temporary RAM
 let minRamExponent = 10;
 // The name to give all purchased servers. Also used to determine which servers were purchased
@@ -31,7 +31,7 @@ const argsSchema = [
     ['run-continuously', false],
     ['absolute-reserve', 0], // Set to reserve money
     ['reserve-percent', 0.9], // Set to reserve a percentage of home money
-    ['utilization-trigger', 0.90], // the percentage utilization that will trigger an attempted purchase
+    ['utilization-trigger', 0.95], // the percentage utilization that will trigger an attempted purchase
     ['min-ram-exponent', 5], // the minimum amount of ram to purchase
     ['reserve-by-time', false], // Experimental exponential decay by time in the run. Starts willing to spend lots of money, falls off over time.
 ];
