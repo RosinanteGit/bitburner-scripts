@@ -1,34 +1,23 @@
 import { disableLogs, formatDuration } from './helpers.js'
 
 const argsSchema = [
-  ['v', false], // Verbose
-  ['verbose', false],
-  ['l', false], // Turn all hashes into money
-  ['liquidate', false],
-  ['interval', 1000], // Rate at which the program runs and spends hashes
-  ['spend-on', 'Sell for Money'],
-  ['spend-on-server', undefined]
-]
+    ['v', false], // Verbose
+    ['verbose', false],
+    ['l', false], // Turn all hashes into money
+    ['liquidate', false],
+    ['interval', 1000], // Rate at which the program runs and spends hashes
+    ['spend-on', 'Sell for Money'],
+    ['spend-on-server', undefined],
+];
 
-const purchaseOptions = [
-  'Sell for Money',
-  'Sell for Corporation Funds',
-  'Exchange for Corporation Research',
-  'Generate Coding Contract',
-  'Improve Studying',
-  'Improve Gym Training'
-]
+const purchaseOptions = ['Sell for Money', 'Sell for Corporation Funds', 'Exchange for Corporation Research', 'Generate Coding Contract', 'Improve Studying', 'Improve Gym Training'];
 
-export function autocomplete (data, args) {
-  data.flags(argsSchema)
-  const lastFlag = args.length > 1 ? args[args.length - 2] : null
-  if (lastFlag == '--spend-on')
-    // Provide a couple auto-complete options to facilitate these arguments with spaces in them
-    return purchaseOptions
-      .map(f => f.replaceAll(' ', '_'))
-      .sort()
-      .concat(purchaseOptions.map(f => `'${f}'`).sort())
-  return []
+export function autocomplete(data, args) {
+    data.flags(argsSchema);
+    const lastFlag = args.length > 1 ? args[args.length - 2] : null;
+    if (lastFlag == "--spend-on") // Provide a couple auto-complete options to facilitate these arguments with spaces in them
+        return purchaseOptions.map(f => f.replaceAll(" ", "_")).sort().concat(purchaseOptions.map(f => `'${f}'`).sort());
+    return [];
 }
 
 /** @param {NS} ns **/
