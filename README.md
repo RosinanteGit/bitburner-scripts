@@ -2,97 +2,58 @@
 
 If you manually `nano git-pull.js` from the terminal and copy the [contents of that script](https://raw.githubusercontent.com/alainbryden/bitburner-scripts/main/git-pull.js), you should be able to run it once and download the rest of the files I use. Early-game, many will be useless because they are only enabled by late-game features, but they shouldn't give you too many problems just being there.
 
-## Customizations
-
-I encourage you to make a fork and customize scripts to your own needs / liking. Please don't make a PR back to me unless you truly think it's something all would benefit from. If you fork the repository, you can update `git-pull.js` to include your github account as the default.
-
 # Running scripts
 
 Scripts can mostly be run on their own, but are primarily designed to be orchestrated by `daemon.js`. If you `run daemon.js` from the terminal, it will start several other scripts.
 
-## Customizing
-Near the top of the main method, there are a list of scripts that are spanwed initially, and periodically. Some may be commented out (for example host-manager, I like to manually manage when servers are bought lately - but you may wish to re-enable this.) Once you've downloaded this file, you should customize it with the default options you like, and comment out the external scripts you don't want to run.
+# Customizing Script Behaviour (Basic)
+Most scripts are designed to be configured via command line arguments. (Such as using `run host-manager.js --min-ram-exponent 8` to ensure no servers are purchased with less than 2^8 GB of RAM)
 
-## Alias
+Default behaviours are to try to "balance" priorities and give most things an equal share of budget / RAM, but this isn't always ideal, especially in bitnodes that cripple one aspect of the game or the other. You can `nano` to view the script and see what the command line options are, or type e.g. `daemon.js --` (dash dash) and hit `<tab>` to get a pop-up auto-completion list. (Make sure your mouse cursor is over the terminal for the auto-complete to appear.)
 
-**You may find it useful to set up an alias with the default options you like rather than editing the file itself. I personally use:**
+Near the top of the initializer for `daemon.js`, there are a list of external scripts that are spawned initially, and periodically. Some of these can be commented out if you would rather not have that script run automatically (for example `work-for-factions` if you would like to manually choose how to spend your "focus" times.) Once you've downloaded this file, you should customize it with the default options you like, and comment out the external scripts you don't want to run.
 
-`alias start="run daemon.js -v --tail --stock-manipulation"`
+## Aliases
 
-**This way I can just enter `start` in the terminal after each reset, and the rest is handled automatically.**
+You may find it useful to set up one or more aliases with the default options you like rather than editing the file itself. (Pro-tip, aliases support tab-auto-completion). I personally use the following aliases:
 
-**other aliases i use:**
+- `alias git-pull="run git-pull.js"`
+  - Makes auto-updating just a little easier.
+- `alias start="run daemon.js -v --stock-manipulation --tail"`
+  - This way I can just enter `start` in the terminal after each reset, and the rest is handled automatically.
+- `alias stop="home; kill daemon.js -v --stock-manipulation; run cascade-kill.js"`
+- `alias sscan="home; run scan.js"`
+  - Makes it a little quicker to run this custom-scan routine, which shows the entire network, stats about servers, and provides handy links for jumping to servers or backdooring them.
+- `alias do="run run-command.js"`
+  - This lets you run ns commands from the terminal, such as `do ns.getPlayer()`, `do Object.keys(ns)` or `do ns.getServerMoneyAvailable('n00dles')`
+- `alias reserve="run reserve.js"`
+  - Doesn't save many keystrokes, but worth highlighting this script. You can run e.g. `reserve 100m` to globally reserve this much money. All scripts with an auto-spend component should respect this amount and leave it unspent. This is useful if e.g. you're saving up to buy something (SQLInject.exe, a big server, the next home RAM upgrade), saving money to spend at the casino, etc...
+- `alias liquidate="home; run stockmaster.js --liquidate; run spend-hacknet-hashes.js --liquidate;"`
+  - Quickly sell all your stocks and hacknet hashes for money so that you can spend it (useful before resetting)
+- `facman="run faction-manager.js"`
+  - Quickly see what augmentations you can afford to purchase. Then use `facman --purchase` to pull the trigger.
+- `alias spend-on-ram="run Tasks/ram-manager.js --reserve 0 --budget 1 --tail"`
+- `alias spend-on-gangs="run gangs.js --reserve 0 --augmentations-budget 1 --equipment-budget 1 --tail"`
+- `alias spend-on-sleeves="run sleeve.js --aug-budget 1 --min-aug-batch 1 --buy-cooldown 0 --reserve 0 --tail"`
+  - Useful to run one or more of these (in your own priority order) after you've spent all you can on augmentations, before resetting.
+- `alias stock="run stockmaster.js --fracH 0.001 --fracB 0.1 --show-pre-4s-forecast --noisy --tail --reserve 100000000"`
+  - Useful in e.g. BN8 to invest all cash in the stock market, and closely track progress. _(Also reserves 100m to play blackjack at the casino so you can build up cash quickly. Pro-tip: Save if you win, and just reload (or soft-reset if you hate save-scumming) when you lose it all to get your money back.)_
+- `alias crime="run crime.js --tail --fast-crimes-only"`
+  - Start an auto-crime loop. (Requires SF4 a.k.a. Singularity access, like so many of my scripts.)
+- `alias work="run work-for-factions.js --fast-crimes-only"`
+  - Auto-work for factions. Will also do crime loops as deemed necessary. (Note, daemon will start this automatically as well)
+- `alias start-tight="run daemon.js --looping-mode --recovery-thread-padding 30 --cycle-timing-delay 2000 --queue-delay 10 --stock-manipulation-focus --tail --silent-misfires --initial-max-targets 64"`
+  - Let this be a hint as to how customizable some of these scripts are (without editing the source code). The above alias is powerful when you are end-of-bn and your hacking skill is very high (8000+), so hack/grow/weaken times are very fast (milliseconds). You can greatly increase productivity and reduce lag by switching to this `--looping-mode` which creates long-lived hack/grow/weaken scripts that run in a loop. This, in addition to the tighter cycle-timing makes them more vulnerable to misfiring (completing out-of-order), but adding recovery thread padding (a multiple on the number of grow/weaken threads to use) can quickly recover from misfires. Note that if you don't yet have enough home-ram to support such a high recovery-thread multiple, you can start lower (5 or 10) then buy more home ram and work your way up.
 
-open ports and install backdoor
+## Customizing Script Code (Advanced)
 
-`alias root="run BruteSSH.exe; run FTPCrack.exe; run relaySMTP.exe; run HTTPworm.exe; run SQLInject.exe; run NUKE.exe; backdoor"`
-
-**rebuy everything after restart**
-
-`alias rebuy="buy BruteSSH.exe; buy FTPCrack.exe; buy relaySMTP.exe; buy HTTPWorm.exe; buy SQLInject.exe; buy ServerProfiler.exe; buy DeepscanV1.exe; buy DeepscanV2.exe; buy AutoLink.exe; buy Formulas.exe"`
-
-**start with XP Focus**
-
-`alias startxp="run daemon.js -v -x --tail --stock-manipulation --silent-misfires"`
-
-**"Broker" if farming with OP**
-
-`alias stock="run stockmaster.js --show-market-summary"`
-
-**starts worker if farming with OP**
-
-`alias work="run work-for-factions.js --fast-crimes-only --no-coding-contracts"`
-
-
-
-**getgang.js does a full run to unlock gangs after SF 4.3 (ram costs multiplier are SF 4.1 x16, SF 4.2 x4, SF4.3 x1) it needs a argument to function 18000 is a full run**
-
-`alias gang="run getgang.js 18000"`
-
-**i added autocrime.js as an alternative without the need of SF 4.3, it needs a word from your slums as first argument: homicide, Drugs, Mug, Rob etc. then as second argument u need the number of repeats, for a full run that would be 18000. I added --tail so u can close it once its running to make sure u can abort!!!!**
-
-`alias autocrime="run autocrime.js homicide 18000 --tail"`
-
-
-
-**option to sell hashes as soon as possible**
-
-`alias hash="run spend-hacknet-hashes.js -l"`
-
-**sell Stocks before restarting!**
-
-`alias sell="run stockmaster.js --liquidate"`
-
-**invites to Factions preffered**
-
-`alias invites="run work-for-factions.js --invites-only --fast-crimes-only --no-coding-contracts"`
-
-**start OP.js from home folder**
-
-`alias op="cd /OP/; run OP.js megacorp --tail"`
-
-**starts my standard scripts before running OP.js**
-
-`alias OPS="run stats.js; run work-for-factions.js --fast-crimes-only --no-coding-contracts; run stockmaster.js --show-market-summary"`
-
-**finds good targets and opens OP folder**
-
-`alias anal="cd home; run analyze-hack.js; cd OP"`
-
-**serverlist**
-
-`alias scan="run scan.js"`
-
-**open "dev" console for debugging/testing**
-
-`alias dev="run dev.js"`
-
+I encourage you to make a fork and customize scripts to your own needs / liking. Please don't make a PR back to me unless you truly think it's something all would benefit from. If you fork the repository, you can update the `git-pull.js` source to include your github account as the default, or set an alias that specifies this via command-line (e.g. `alias git-pull="run git-pull.js --github mygitusername --repository bitburner-scripts`). This way you can auto-update from your fork and only merge my latest changes when you're ready.
 
 
 # Disclaimer
 
 This is my own repository of scripts for playing Bitburner.
-I often go to some lengths to make them generic and customizable, but am by no means providing these scripts as a "service" to the bitburner community.
+I often go to some lengths to make them generic and customizable, but am by no means providing these scripts as a "service" to the Bitburner community.
 It's meant as an easy way for me to share code with friends, and track changes and bugs in my scripts.
 
 - If you wish to use my scripts or copy from them, feel free!
@@ -103,17 +64,3 @@ You should fork the code, and start tweaking it the way you want it to behave. T
 
 Hit up the Bitburner Discord with any questions: https://discord.gg/Wjrs92b3
 Many helpful folks in there are familiar with my scripts or ones similar to them and can address your questions and concerns far quicker than I can.
-
-
-# Edit:
-
-Credit goes to u/__Aimbot__ on Reddit from this Post https://www.reddit.com/r/Bitburner/comments/rm48o1/the_best_hacking_approach_ive_seen_so_far/
-and on alainbryden https://github.com/alainbryden/bitburner-scripts for their great scripts!
-
-1. the script does work with at least 4TB Ram however it needs to be more then 4TB, I have found that a min of 32TB is needed. 8tb and 16tb does not give an error, but it    does not work, as it does not kick off the scripts. 
-2. buy `Formulas.exe` for this to work!
-3. go to options and set Netscript exec time to 5ms!!!
-4. kill the daemon.js and the other helpers, u can keep running stats.js, work-for-factions.js, host-manager.js etc. if u have enough ram
-5. `run analyze-hack.js --tail` to determine the server u want to milk. (phantasy, the-hub, are usually good targets midgame when megacorp is later on)
-6. to start go in the /OP/ folder and type `run OP.js Servername --tail`
-7. profit!

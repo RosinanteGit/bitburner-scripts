@@ -142,27 +142,28 @@ export async function getNsDataThroughFile(ns, command, fName, verbose = false, 
 * @param {function} fnIsAlive - A single-argument function used to start the new sript, e.g. `ns.isRunning` or `pid => ns.ps("home").some(process => process.pid === pid)`
 **/
 export async function getNsDataThroughFile_Custom(ns, fnRun, fnIsAlive, command, fName, verbose = false, maxRetries = 5, retryDelayMs = 50) {
-  checkNsInstance(ns, '"getNsDataThroughFile_Custom"');
-  if (!verbose) disableLogs(ns, ['read']);
-  const commandHash = hashCode(command);
-  fName = fName || `/Temp/${commandHash}-data.txt`;
-  const fNameCommand = (fName || `/Temp/${commandHash}-command`) + '.js'
-  // Prepare a command that will write out a new file containing the results of the command
-  // unless it already exists with the same contents (saves time/ram to check first)
-  // If an error occurs, it will write an empty file to avoid old results being misread.
-  const commandToFile = `let result = ""; try { result = JSON.stringify(${command}); } catch { }
-      if (ns.read("${fName}") != result) await ns.write("${fName}", result, 'w')`;
-  // Run the command with auto-retries if it fails
-  const pid = await runCommand_Custom(ns, fnRun, commandToFile, fNameCommand, false, maxRetries, retryDelayMs);
-  // Wait for the process to complete
-  await waitForProcessToComplete_Custom(ns, fnIsAlive, pid, verbose);
-  if (verbose) ns.print(`Process ${pid} is done. Reading the contents of ${fName}...`);
-  // Read the file, with auto-retries if it fails
-  const fileData = await autoRetry(ns, () => ns.read(fName), f => f !== undefined && f !== "",
-      () => `ns.read('${fName}') somehow returned undefined or an empty string`,
-      maxRetries, retryDelayMs, undefined, verbose);
-  if (verbose) ns.print(`Read the following data for command ${command}:\n${fileData}`);
-  return JSON.parse(fileData); // Deserialize it back into an object/array and return
+    checkNsInstance(ns, '"getNsDataThroughFile_Custom"');
+    if (!verbose) disableLogs(ns, ['read']);
+    const commandHash = hashCode(command);
+    fName = fName || `/Temp/${commandHash}-data.txt`;
+    const fNameCommand = (fName || `/Temp/${commandHash}-command`) + '.js'
+    // Prepare a command that will write out a new file containing the results of the command
+    // unless it already exists with the same contents (saves time/ram to check first)
+    // If an error occurs, it will write an empty file to avoid old results being misread.
+    const commandToFile = `let result="";try{result=JSON.stringify(
+        ${command}
+        );}catch{} const f="${fName}"; if(ns.read(f)!=result) await ns.write(f,result,'w')`;
+    // Run the command with auto-retries if it fails
+    const pid = await runCommand_Custom(ns, fnRun, commandToFile, fNameCommand, false, maxRetries, retryDelayMs);
+    // Wait for the process to complete
+    await waitForProcessToComplete_Custom(ns, fnIsAlive, pid, verbose);
+    if (verbose) ns.print(`Process ${pid} is done. Reading the contents of ${fName}...`);
+    // Read the file, with auto-retries if it fails
+    const fileData = await autoRetry(ns, () => ns.read(fName), f => f !== undefined && f !== "",
+        () => `ns.read('${fName}') somehow returned undefined or an empty string`,
+        maxRetries, retryDelayMs, undefined, verbose);
+    if (verbose) ns.print(`Read the following data for command ${command}:\n${fileData}`);
+    return JSON.parse(fileData); // Deserialize it back into an object/array and return
 }
 
 /** Evaluate an arbitrary ns command by writing it to a new script and then running or executing it.
@@ -185,17 +186,17 @@ export async function runCommand(ns, command, fileName, verbose = false, maxRetr
 * @param {function} fnRun - A single-argument function used to start the new sript, e.g. `ns.run` or `(f,...args) => ns.exec(f, "home", ...args)`
 **/
 export async function runCommand_Custom(ns, fnRun, command, fileName, verbose = false, maxRetries = 5, retryDelayMs = 50, ...args) {
-  checkNsInstance(ns, '"runCommand_Custom"');
-  let script = `import { formatMoney, formatNumberShort, formatDuration, parseShortNumber, scanAllServers } fr` + `om '${getFilePath('helpers.js')}'\n` +
-      `export async function main(ns) { try { ` +
-      (verbose ? `let output = ${command}; ns.tprint(output)` : command) +
-      `; } catch(err) { ns.tprint(String(err)); throw(err); } }`;
-  fileName = fileName || `/Temp/${hashCode(command)}-command.js`;
-  // To improve performance and save on garbage collection, we can skip writing this exact same script was previously written (common for repeatedly-queried data)
-  if (ns.read(fileName) != script) await ns.write(fileName, script, "w");
-  return await autoRetry(ns, () => fnRun(fileName, ...args), temp_pid => temp_pid !== 0,
-      () => `Run command returned no pid. Destination: ${fileName} Command: ${command}\nEnsure you have sufficient free RAM to run this temporary script.`,
-      maxRetries, retryDelayMs, undefined, verbose);
+    checkNsInstance(ns, '"runCommand_Custom"');
+    let script = `import { formatMoney, formatNumberShort, formatDuration, parseShortNumber, scanAllServers } fr` + `om '${getFilePath('helpers.js')}'\n` +
+        `export async function main(ns) { try { ` +
+        (verbose ? `let output = ${command}; ns.tprint(output)` : command) +
+        `; } catch(err) { ns.tprint(String(err)); throw(err); } }`;
+    fileName = fileName || `/Temp/${hashCode(command)}-command.js`;
+    // To improve performance and save on garbage collection, we can skip writing this exact same script was previously written (common for repeatedly-queried data)
+    if (ns.read(fileName) != script) await ns.write(fileName, script, "w");
+    return await autoRetry(ns, () => fnRun(fileName, ...args), temp_pid => temp_pid !== 0,
+        () => `Run command returned no pid.\n  Destination: ${fileName}\n  Command: ${command}\nEnsure you have sufficient free RAM to run this temporary script.`,
+        maxRetries, retryDelayMs, undefined, verbose);
 }
 
 /**
@@ -284,26 +285,29 @@ export function scanAllServers(ns) {
 }
 
 /** @param {NS} ns 
-* Get a dictionary of active source files, taking into account the current active bitnode as well. **/
-export async function getActiveSourceFiles(ns) {
-  return await getActiveSourceFiles_Custom(ns, getNsDataThroughFile);
+ * Get a dictionary of active source files, taking into account the current active bitnode as well. **/
+export async function getActiveSourceFiles(ns, includeLevelsFromCurrentBitnode = true) {
+    return await getActiveSourceFiles_Custom(ns, getNsDataThroughFile, includeLevelsFromCurrentBitnode);
 }
 
 /** @param {NS} ns 
-* getActiveSourceFiles Helper that allows the user to pass in their chosen implementation of getNsDataThroughFile to minimize RAM usage **/
-export async function getActiveSourceFiles_Custom(ns, fnGetNsDataThroughFile) {
-  checkNsInstance(ns, '"getActiveSourceFiles"');
-  let tempFile = '/Temp/owned-source-files.txt';
-  // Find out what source files the user has unlocked
-  let dictSourceFiles;
-  try { await fnGetNsDataThroughFile(ns, `Object.fromEntries(ns.getOwnedSourceFiles().map(sf => [sf.n, sf.lvl]))`, tempFile); } catch { }
-  if (!dictSourceFiles) { // Bit of a hack, but if RAM is so low that this fails, we can fallback to using an older version of this file, and even assuming we have no source files.
-      dictSourceFiles = ns.read(tempFile)
-      dictSourceFiles = dictSourceFiles ? JSON.parse(dictSourceFiles) : {};
-  }
-  // If the user is currently in a given bitnode, they will have its features unlocked
-  dictSourceFiles[(await fnGetNsDataThroughFile(ns, 'ns.getPlayer()', '/Temp/player-info.txt')).bitNodeN] = 3;
-  return dictSourceFiles;
+ * getActiveSourceFiles Helper that allows the user to pass in their chosen implementation of getNsDataThroughFile to minimize RAM usage **/
+export async function getActiveSourceFiles_Custom(ns, fnGetNsDataThroughFile, includeLevelsFromCurrentBitnode = true) {
+    checkNsInstance(ns, '"getActiveSourceFiles"');
+    let tempFile = '/Temp/owned-source-files.txt';
+    // Find out what source files the user has unlocked
+    let dictSourceFiles;
+    try { await fnGetNsDataThroughFile(ns, `Object.fromEntries(ns.getOwnedSourceFiles().map(sf => [sf.n, sf.lvl]))`, tempFile); } catch { }
+    if (!dictSourceFiles) { // Bit of a hack, but if RAM is so low that this fails, we can fallback to using an older version of this file, and even assuming we have no source files.
+        dictSourceFiles = ns.read(tempFile)
+        dictSourceFiles = dictSourceFiles ? JSON.parse(dictSourceFiles) : {};
+    }
+    // If the user is currently in a given bitnode, they will have its features unlocked
+    if (includeLevelsFromCurrentBitnode) {
+        const bitNodeN = (await fnGetNsDataThroughFile(ns, 'ns.getPlayer()', '/Temp/player-info.txt')).bitNodeN;
+        dictSourceFiles[bitNodeN] = Math.max(3, dictSourceFiles[bitNodeN] || 0);
+    }
+    return dictSourceFiles;
 }
 
 /** @param {NS} ns 
@@ -324,5 +328,5 @@ export async function tryGetBitNodeMultipliers_Custom(ns, fnGetNsDataThroughFile
 }
 
 /** @param {NS} ns 
-* Returns a helpful error message if we forgot to pass the ns instance to a function */
+ * Returns a helpful error message if we forgot to pass the ns instance to a function */
 export function checkNsInstance(ns, fnName = "this function") { if (!ns.print) throw `The first argument to ${fnName} should be a 'ns' instance.`; return ns; }
