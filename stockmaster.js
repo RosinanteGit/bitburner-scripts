@@ -141,6 +141,7 @@ export async function main(ns) {
         const thresholdToSell = pre4s ? options['pre-4s-sell-threshold-return'] : options['sell-threshold'];
         if (myStocks.length > 0)
             doStatusUpdate(ns, allStocks, myStocks, hudElement);
+        else if (hudElement) hudElement.innerText = "$0.000 ";
         if (pre4s && allStocks[0].priceHistory.length < minTickHistory) {
             log(ns, `Building a history of stock prices (${allStocks[0].priceHistory.length}/${minTickHistory})...`);
             await ns.sleep(sleepInterval);
@@ -540,15 +541,17 @@ function initializeHud() {
     if (htmlDisplay !== null) return htmlDisplay;
     // Get the custom display elements in HUD.
     let customElements = d.getElementById("overview-extra-hook-0").parentElement.parentElement;
-    // Make a clone - in case other scripts are using them
+    // Make a clone of the hook for extra hud elements, and move it up under money
     let stockValueTracker = customElements.cloneNode(true);
-    // Clear id since duplicate id's are invalid
+    // Remove any nested elements created by stats.js
+    stockValueTracker.querySelectorAll("p > p").forEach(el => el.parentElement.removeChild(el));
+    // Change ids since duplicate id's are invalid
     stockValueTracker.querySelectorAll("p").forEach((el, i) => el.id = "stock-display-" + i);
     // Get out output element
     htmlDisplay = stockValueTracker.querySelector("#stock-display-1");
     // Display label and default value
     stockValueTracker.querySelectorAll("p")[0].innerText = "Stock";
-    htmlDisplay.innerText = "$0.000"
+    htmlDisplay.innerText = "$0.000 "
     // Insert our element right after Money
     customElements.parentElement.insertBefore(stockValueTracker, customElements.parentElement.childNodes[2]);
     return htmlDisplay;

@@ -174,9 +174,9 @@ export async function getNsDataThroughFile_Custom(ns, fnRun, fnIsAlive, command,
 * @param {...args} args - args to be passed in as arguments to command being run as a new script.
 */
 export async function runCommand(ns, command, fileName, verbose = false, maxRetries = 5, retryDelayMs = 50, ...args) {
-  checkNsInstance(ns, '"runCommand"');
-  if (!verbose) disableLogs(ns, ['run', 'sleep']);
-  return await runCommand_Custom(ns, ns.run, command, fileName, verbose, maxRetries, retryDelayMs, ...args);
+    checkNsInstance(ns, '"runCommand"');
+    if (!verbose) disableLogs(ns, ['run', 'asleep']);
+    return await runCommand_Custom(ns, ns.run, command, fileName, verbose, maxRetries, retryDelayMs, ...args);
 }
 
 /**
@@ -218,43 +218,43 @@ export async function waitForProcessToComplete(ns, pid, verbose) {
 * @param {function} fnIsAlive - A single-argument function used to start the new sript, e.g. `ns.isRunning` or `pid => ns.ps("home").some(process => process.pid === pid)`
 **/
 export async function waitForProcessToComplete_Custom(ns, fnIsAlive, pid, verbose) {
-  checkNsInstance(ns, '"waitForProcessToComplete_Custom"');
-  if (!verbose) disableLogs(ns, ['sleep']);
-  // Wait for the PID to stop running (cheaper than e.g. deleting (rm) a possibly pre-existing file and waiting for it to be recreated)
-  for (var retries = 0; retries < 1000; retries++) {
-      if (!fnIsAlive(pid)) break; // Script is done running
-      if (verbose && retries % 100 === 0) ns.print(`Waiting for pid ${pid} to complete... (${retries})`);
-      await ns.sleep(10);
-  }
-  // Make sure that the process has shut down and we haven't just stopped retrying
-  if (fnIsAlive(pid)) {
-      let errorMessage = `run-command pid ${pid} is running much longer than expected. Max retries exceeded.`;
-      ns.print(errorMessage);
-      throw errorMessage;
-  }
+    checkNsInstance(ns, '"waitForProcessToComplete_Custom"');
+    if (!verbose) disableLogs(ns, ['asleep']);
+    // Wait for the PID to stop running (cheaper than e.g. deleting (rm) a possibly pre-existing file and waiting for it to be recreated)
+    for (var retries = 0; retries < 1000; retries++) {
+        if (!fnIsAlive(pid)) break; // Script is done running
+        if (verbose && retries % 100 === 0) ns.print(`Waiting for pid ${pid} to complete... (${retries})`);
+        await ns.asleep(10);
+    }
+    // Make sure that the process has shut down and we haven't just stopped retrying
+    if (fnIsAlive(pid)) {
+        let errorMessage = `run-command pid ${pid} is running much longer than expected. Max retries exceeded.`;
+        ns.print(errorMessage);
+        throw errorMessage;
+    }
 }
 
 /** Helper to retry something that failed temporarily (can happen when e.g. we temporarily don't have enough RAM to run)
 * @param {NS} ns - The nestcript instance passed to your script's main entry point */
 export async function autoRetry(ns, fnFunctionThatMayFail, fnSuccessCondition, errorContext = "Success condition not met",
-  maxRetries = 5, initialRetryDelayMs = 50, backoffRate = 3, verbose = false) {
-  checkNsInstance(ns, '"autoRetry"');
-  let retryDelayMs = initialRetryDelayMs;
-  while (maxRetries-- > 0) {
-      try {
-          const result = await fnFunctionThatMayFail()
-          if (!fnSuccessCondition(result)) throw typeof errorContext === 'string' ? errorContext : errorContext();
-          return result;
-      }
-      catch (error) {
-          const fatal = maxRetries === 0;
-          const errorLog = `${fatal ? 'FAIL' : 'WARN'}: (${maxRetries} retries remaining): ${String(error)}`
-          log(ns, errorLog, fatal, !verbose ? undefined : (fatal ? 'error' : 'warning'))
-          if (fatal) throw error;
-          await ns.sleep(retryDelayMs);
-          retryDelayMs *= backoffRate;
-      }
-  }
+    maxRetries = 5, initialRetryDelayMs = 50, backoffRate = 3, verbose = false) {
+    checkNsInstance(ns, '"autoRetry"');
+    let retryDelayMs = initialRetryDelayMs;
+    while (maxRetries-- > 0) {
+        try {
+            const result = await fnFunctionThatMayFail()
+            if (!fnSuccessCondition(result)) throw typeof errorContext === 'string' ? errorContext : errorContext();
+            return result;
+        }
+        catch (error) {
+            const fatal = maxRetries === 0;
+            const errorLog = `${fatal ? 'FAIL' : 'WARN'}: (${maxRetries} retries remaining): ${String(error)}`
+            log(ns, errorLog, fatal, !verbose ? undefined : (fatal ? 'error' : 'warning'))
+            if (fatal) throw error;
+            await ns.asleep(retryDelayMs);
+            retryDelayMs *= backoffRate;
+        }
+    }
 }
 
 /** Helper to log a message, and optionally also tprint it and toast it
