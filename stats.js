@@ -18,6 +18,7 @@ export async function main(ns) {
     const hook1 = doc.getElementById('overview-extra-hook-1');
     const dictSourceFiles = await getActiveSourceFiles(ns, false); // Find out what source files the user has unlocked
     let playerInfo = await getNsDataThroughFile(ns, 'ns.getPlayer()', '/Temp/player-info.txt');
+    let inBladeburner = playerInfo.inBladeburner;
     const bitNode = playerInfo.bitNodeN;
     let stkSymbols = null;
     if (!options['hide-stocks'] && playerInfo.hasTixApiAccess) // Auto-disabled if we do not have the TSK API
@@ -32,7 +33,6 @@ export async function main(ns) {
     // Main stats update loop
     while (true) {
         try {
-
             // Show what bitNode we're currently playing
             addHud("BitNode", `${bitNode}.${1 + (dictSourceFiles[bitNode] || 0)}`, "Detected as being one more than your current owned SF level.");
 
@@ -58,6 +58,10 @@ export async function main(ns) {
             addHud("ScrInc", formatMoney(ns.getScriptIncome()[0], 3, 2) + '/sec', "Total 'instantenous' income per second being earned across all scripts running on all servers.");
             addHud("ScrExp", formatNumberShort(ns.getScriptExpGain(), 3, 2) + '/sec', "Total 'instantenous' hack experience per second being earned across all scripts running on all servers.");
 
+            const reserve = (await ns.read("reserve.txt")) || 0;
+            if (reserve > 0) // Bitburner bug: Trace amounts of share power sometimes left over after we stop sharing
+                addHud("Reserve", formatNumberShort(reserve, 3, 2), "Most scripts will leave this much money unspent. Remove with `run reserve.js 0`");
+
             let gangInfo = false;
             if (2 in dictSourceFiles || 2 == bitNode) { // Gang income is only relevant once gangs are unlocked
                 gangInfo = await getNsDataThroughFile(ns, 'ns.gang.inGang() ? ns.gang.getGangInformation() : false', '/Temp/gang-stats.txt');
@@ -80,7 +84,18 @@ export async function main(ns) {
             if (options['show-peoplekilled']) {
                 playerInfo = await getNsDataThroughFile(ns, 'ns.getPlayer()', '/Temp/player-info.txt');
                 const numPeopleKilled = playerInfo.numPeopleKilled;
-                addHud("Kills", formatNumberShort(numPeopleKilled, 6, 0), "Count of successful Homicides. Note: The most kills you need is 30 for 'Speakers for the Dead'");
+                addHud("Kills", formatSixSigFigs(numPeopleKilled), "Count of successful Homicides. Note: The most kills you need is 30 for 'Speakers for the Dead'");
+            }
+
+            if (7 in dictSourceFiles || 7 == bitNode) { // Bladeburner API unlocked
+                inBladeburner = inBladeburner || playerInfo.inBladeburner || // Avoid RAM dodge call if we have this info already
+                    (playerInfo = await getNsDataThroughFile(ns, 'ns.getPlayer()', '/Temp/player-info.txt')).inBladeburner;
+                if (inBladeburner) {
+                    const bbRank = await getNsDataThroughFile(ns, 'ns.bladeburner.getRank()', '/Temp/bladeburner-rank.txt');
+                    const bbSP = await getNsDataThroughFile(ns, 'ns.bladeburner.getSkillPoints()', '/Temp/bladeburner-skill-points.txt');
+                    addHud("BB Rank", formatSixSigFigs(bbRank), "Your current bladeburner rank");
+                    addHud("BB SP", formatSixSigFigs(bbSP), "Your current unspent bladeburner skill points");
+                }
             }
 
             const sharePower = await getNsDataThroughFile(ns, 'ns.getSharePower()', '/Temp/share-power.txt');
@@ -102,4 +117,9 @@ export async function main(ns) {
         }
         await ns.sleep(1000);
     }
+}
+
+function formatSixSigFigs(value, minDecimalPlaces = 0, maxDecimalPlaces = 0) {
+    return value >= 1E7 ? formatNumberShort(value, 6, 3) :
+        value.toLocaleString(undefined, { minimumFractionDigits: minDecimalPlaces, maximumFractionDigits: maxDecimalPlaces });
 }

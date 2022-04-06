@@ -102,35 +102,23 @@ export function autocomplete (data, args) {
  * - Backing up your save / scripts first (try `download *` in the terminal)
  * - Ensuring you have no local changes that you don't mind getting overwritten
  * TODO: Some way to list all files in the repository and/or download them all. **/
-export async function main (ns) {
-  options = ns.flags(argsSchema)
-  if (options.subfolder && !options.subfolder.startsWith('/'))
-    options.subfolder = '/' + options.subfolder // Game requires folders to have a leading slash. Add one if it's missing.
-  const baseUrl = `https://raw.githubusercontent.com/${options.github}/${options.repository}/${options.branch}/`
-  const filesToDownload = options['new-file'].concat(
-    options.download.length > 0 ? options.download : await repositoryListing(ns)
-  )
-  for (const localFilePath of filesToDownload) {
-    let fullLocalFilePath = pathJoin(options.subfolder, localFilePath)
-    const remoteFilePath = baseUrl + localFilePath
-    ns.print(
-      `Trying to update "${fullLocalFilePath}" from ${remoteFilePath} ...`
-    )
-    if (
-      (await ns.wget(
-        `${remoteFilePath}?ts=${new Date().getTime()}`,
-        fullLocalFilePath
-      )) &&
-      (await rewriteFileForSubfolder(ns, fullLocalFilePath))
-    )
-      ns.tprint(
-        `SUCCESS: Updated "${localFilePath}" to the latest from ${remoteFilePath}`
-      )
-    else
-      ns.tprint(
-        `WARNING: "${localFilePath}" was not updated. (Currently running or not located at ${remoteFilePath} )`
-      )
-  }
+export async function main(ns) {
+    options = ns.flags(argsSchema);
+    if (options.subfolder && !options.subfolder.startsWith('/'))
+        options.subfolder = '/' + options.subfolder; // Game requires folders to have a leading slash. Add one if it's missing.
+    const baseUrl = `https://raw.githubusercontent.com/${options.github}/${options.repository}/${options.branch}/`;
+    const filesToDownload = options['new-file'].concat(options.download.length > 0 ? options.download : await repositoryListing(ns));
+    for (const localFilePath of filesToDownload) {
+        let fullLocalFilePath = pathJoin(options.subfolder, localFilePath);
+        const remoteFilePath = baseUrl + localFilePath;
+        ns.print(`Trying to update "${fullLocalFilePath}" from ${remoteFilePath} ...`);
+        if (await ns.wget(`${remoteFilePath}?ts=${new Date().getTime()}`, fullLocalFilePath) && await rewriteFileForSubfolder(ns, fullLocalFilePath))
+            ns.tprint(`SUCCESS: Updated "${localFilePath}" to the latest from ${remoteFilePath}`);
+        else
+            ns.tprint(`WARNING: "${localFilePath}" was not updated. (Currently running or not located at ${remoteFilePath} )`)
+    }
+    ns.tprint(`INFO: Pull complete. If you have any questions or issues, head over to the Bitburner #alains-scripts Discord channel: ` +
+        `https://discord.com/channels/415207508303544321/935667531111342200`);
 }
 
 /** Joins all arguments as components in a path, e.g. pathJoin("foo", "bar", "/baz") = "foo/bar/baz" **/

@@ -234,9 +234,9 @@ export async function main(ns) {
     const openTailWindows = !options['no-tail-windows'];
     asynchronousHelpers = [
         { name: "stats.js", shouldRun: () => ns.getServerMaxRam("home") >= 64 /* Don't waste precious RAM */ }, // Adds stats not usually in the HUD
-        { name: "stockmaster.js", args: ["--show-market-summary"], tail: openTailWindows, shouldRun: () => playerStats.hasTixApiAccess }, // Start our stockmaster if we have the required stockmarket access
+        { name: "stockmaster.js", args: openTailWindows ? ["--show-market-summary"] : [], tail: openTailWindows, shouldRun: () => playerStats.hasTixApiAccess }, // Start our stockmaster if we have the required stockmarket access
         { name: "hacknet-upgrade-manager.js", args: ["-c", "--max-payoff-time", "1h"] }, // Kickstart hash income by buying everything with up to 1h payoff time immediately
-        { name: "spend-hacknet-hashes.js", args: ["-v"], shouldRun: () => 9 in dictSourceFiles }, // Always have this running to make sure hashes aren't wasted
+        { name: "spend-hacknet-hashes.js", args: [], shouldRun: () => 9 in dictSourceFiles }, // Always have this running to make sure hashes aren't wasted
         { name: "sleeve.js", tail: openTailWindows, shouldRun: () => 10 in dictSourceFiles }, // Script to create manage our sleeves for us
         { name: "gangs.js", tail: openTailWindows, shouldRun: () => 2 in dictSourceFiles }, // Script to create manage our gang for us
         {
@@ -250,7 +250,7 @@ export async function main(ns) {
     // These scripts are spawned periodically (at some interval) to do their checks, with an optional condition that limits when they should be spawned
     let shouldUpgradeHacknet = () => !shouldReserveMoney() && (whichServerIsRunning(ns, "hacknet-upgrade-manager.js", false) === null);
     // In BN8 (stocks-only bn) and others with hack income disabled, don't waste money on improving hacking infrastructure unless we have plenty of money to spare
-    let shouldImproveHacking = () => bitnodeMults.ScriptHackMoneyGain != 0 || playerStats.bitNodeN != 8 || ns.getServerMoneyAvailable("home") > 1e12;
+    let shouldImproveHacking = () => bitnodeMults.ScriptHackMoneyGain != 0 && playerStats.bitNodeN != 8 || ns.getServerMoneyAvailable("home") > 1e12;
     // Note: Periodic script are generally run every 30 seconds, but intervals are spaced out to ensure they aren't all bursting into temporary RAM at the same time.
     periodicScripts = [
         // Buy tor as soon as we can if we haven't already, and all the port crackers
@@ -272,7 +272,9 @@ export async function main(ns) {
         },
         {   // Periodically look to purchase new servers, but note that these are often not a great use of our money (hack income isn't everything) so we may hold-back.
             interval: 32000, name: "host-manager.js", requiredServer: "home",
-            args: () => ['--reserve-by-time', '--utilization-trigger', '0', '--reserve-percent', '0.9'], // Spend up to 10% of our money on temporary (only for this aug) servers
+            // Funky heuristic warning: I find that new players with fewer SF levels under their belt are obsessed with hack income from servers,
+            // but established players end up finding auto-purchased hosts annoying - so now the % of money we spend shrinks as SF levels grow.
+            args: () => ['--reserve-percent', Math.min(0.9, 0.1 * Object.values(dictSourceFiles).reduce((t, v) => t + v, 0)), '--utilization-trigger', '0'],
             shouldRun: () => {
                 if (shouldReserveMoney() || !shouldImproveHacking()) return false; // Skip if we're saving up, or if hack income is not important in this BN or at this time               
                 let utilization = getTotalNetworkUtilization(); // Utilization-based heuristics for when we likely could use more RAM for hacking
@@ -341,9 +343,18 @@ async function kickstartHackXp(ns) {
         let maxXpCycles = 10;
         const maxXpTime = options['initial-hack-xp-time'];
         const start = Date.now();
+        const minCycleTime = getXPFarmTarget().timeToWeaken();
+        if (minCycleTime > maxXpTime * 1000)
+            return log(`INFO: Skipping XP cycle because the best target (${getXPFarmTarget()}) time to weaken (${formatDuration(minCycleTime)})` +
+                ` is greater than the configured --initial-hack-xp-time of ${maxXpTime} seconds.`);
         log(`INFO: Running Hack XP-focused cycles for ${maxXpTime} seconds to further boost hack XP and speed up main hack cycle times. (set --initial-hack-xp-time 0 to disable this step.)`);
-        while (maxXpCycles-- > 0 && Date.now() - start < maxXpTime * 1000)
-            await ns.asleep((await farmHackXp(ns, 1, verbose, 1)) || loopInterval);
+        while (maxXpCycles-- > 0 && Date.now() - start < maxXpTime * 1000) {
+            let cycleTime = await farmHackXp(ns, 1, verbose, 1);
+            if (cycleTime)
+                await ns.asleep(cycleTime);
+            else
+                return log('WARNING: Failed to schedule an XP cycle', false, 'warning');
+        }
     }
 }
 
@@ -477,14 +488,17 @@ async function doTargetingLoop(ns) {
                 // Pull additional data about servers that infrequently changes
                 await refreshDynamicServerData(ns, addedServerNames);
                 // Occassionally print our current targetting order (todo, make this controllable with a flag or custom UI?)
-                if (verbose && loops % 600 == 0)
-                    log('Targetting Order:\n  ' + serverListByTargetOrder.filter(s => s.shouldHack()).map(s =>
-                        `${s.isPrepped() ? '*' : ' '} ${s.canHack() ? '✓' : 'X'} Money: ${formatMoney(s.getMoney(), 4)} of ${formatMoney(s.getMaxMoney(), 4)} ` +
-                        `(${formatMoney(s.getMoneyPerRamSecond(), 4)}/ram.sec), Sec: ${formatNumber(s.getSecurity(), 3)} of ${formatNumber(s.getMinSecurity(), 3)}, ` +
-                        `TTW: ${formatDuration(s.timeToWeaken())}, Hack: ${s.requiredHackLevel} - ${s.name}` +
+                if (verbose && loops % 600 == 0) {
+                    const targetsLog = 'Targetting Order:\n  ' + serverListByTargetOrder.filter(s => s.shouldHack()).map(s =>
+                        `${s.isPrepped() ? '*' : ' '} ${s.canHack() ? '✓' : 'X'} Money: ${formatMoney(s.getMoney(), 4)} of ${formatMoney(s.getMaxMoney(), 4)} ` +
+                        `(${formatMoney(s.getMoneyPerRamSecond(), 4)}/ram.sec), Sec: ${formatNumber(s.getSecurity(), 3)} of ${formatNumber(s.getMinSecurity(), 3)}, ` +
+                        `TTW: ${formatDuration(s.timeToWeaken())}, Hack: ${s.requiredHackLevel} - ${s.name}` +
                         (!stockMode || !serverStockSymbols[s.name] ? '' : ` Sym: ${serverStockSymbols[s.name]} Owned: ${serversWithOwnedStock.includes(s.name)} ` +
                             `Manip: ${shouldManipulateGrow[s.name] ? "grow" : shouldManipulateHack[s.name] ? "hack" : '(disabled)'}`))
-                        .join('\n  '));
+                        .join('\n  ');
+                    log(targetsLog);
+                    await ns.write("/Temp/targets.txt", targetsLog, "w");
+                }
             }
             var prepping = [];
             var preppedButNotTargeting = [];
@@ -694,7 +708,7 @@ async function doTargetingLoop(ns) {
             var errorMessage = typeof err === 'string' ? err : err.message || JSON.stringify(err);
             log(`WARNING: Caught an error in the targeting loop: ${errorMessage}`, true, 'warning');
             // Catch errors that appear to be caused by deleted servers, and remove the server from our lists.
-            const expectedDeletedHostPhrase = "Invalid IP/hostname: ";
+            const expectedDeletedHostPhrase = "Invalid hostname: ";
             let expectedErrorPhraseIndex = errorMessage.indexOf(expectedDeletedHostPhrase);
             if (expectedErrorPhraseIndex == -1) continue;
             let start = expectedErrorPhraseIndex + expectedDeletedHostPhrase.length;
@@ -1511,7 +1525,7 @@ async function scheduleHackExpCycle(ns, server, percentOfFreeRamToConsume, verbo
                 singleServerLimit++;
         }
         // Note: Next time we tick, Hack will have *just* fired, so for the moment we will be at 0 money and above min security. Trust that all is well
-        return cycleTime; // Ideally we wake up right after hack has fired so we can schedule another immediately
+        return success ? cycleTime : false; // Ideally we wake up right after hack has fired so we can schedule another immediately
     } finally {
         farmXpReentryLock[server.name] = false;
     }
