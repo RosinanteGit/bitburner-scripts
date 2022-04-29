@@ -13,9 +13,9 @@ const argsSchema = [
 
 ];
 
-export function autocomplete (data, _) {
-  data.flags(argsSchema)
-  return []
+export function autocomplete(data, _) {
+    data.flags(argsSchema);
+    return [];
 }
 
 /** @param {NS} ns **/
@@ -56,10 +56,8 @@ export async function main(ns) {
     } while (continuous);
 }
 
-let lastUpgradeLog = ''
-function log (ns, logMessage) {
-  if (logMessage != lastUpgradeLog) ns.print((lastUpgradeLog = logMessage))
-}
+let lastUpgradeLog = "";
+function log(ns, logMessage) { if (logMessage != lastUpgradeLog) ns.print(lastUpgradeLog = logMessage); }
 
 // Will buy the most effective hacknet upgrade, so long as it will pay for itself in the next {payoffTimeSeconds} seconds.
 /** @param {NS} ns **/
@@ -142,67 +140,8 @@ export function upgradeHacknet(ns, maxSpend, maxPayoffTimeSeconds = 3600 /* 3600
             `current available funds` + (reserve == 0 ? '.' : ` (after reserving ${formatMoney(reserve)}).`));
         return 0; // 
     }
-  }
-  // Compare this to the cost of adding a new node. This is an imperfect science. We are paying to unlock the ability to buy all the same upgrades our
-  // other nodes have - all of which have been deemed worthwhile. Not knowing the sum total that will have to be spent to reach that same production,
-  // the "most optimistic" case is to treat "price" of all that production to be just the cost of this server, but this is **very** optimistic.
-  // In practice, the cost of new hacknodes scales steeply enough that this should come close to being true (cost of server >> sum of cost of upgrades)
-  let newNodeCost = ns.hacknet.getPurchaseNodeCost()
-  let newNodePayoff =
-    ns.hacknet.numNodes() == ns.hacknet.maxNumNodes()
-      ? 0
-      : worstNodeProduction / newNodeCost
-  let shouldBuyNewNode = newNodePayoff > bestUpgradePayoff
-  if (newNodePayoff == 0 && bestUpgradePayoff == 0) {
-    log(
-      ns,
-      `All upgrades have no value (is hashNet income disabled in this BN?)`
-    )
-    return false // As long as maxSpend doesn't change, we will never purchase another upgrade
-  }
-  // If specified, only buy upgrades that will pay for themselves in {payoffTimeSeconds}.
-  const hashDollarValue = haveHacknetServers ? 2.5e5 : 1 // Dollar value of one hash-per-second (0.25m dollars per production).
-  let payoffTimeSeconds =
-    1 /
-    (hashDollarValue * (shouldBuyNewNode ? newNodePayoff : bestUpgradePayoff))
-  if (shouldBuyNewNode) cost = newNodeCost
-
-  // Prepare info about the next uprade. Whether we end up purchasing or not, we will display this info.
-  let strPurchase =
-    (shouldBuyNewNode
-      ? `a new node "hacknet-node-${ns.hacknet.numNodes()}"`
-      : `hacknet-node-${nodeToUpgrade} ${bestUpgrade.name} ${upgradedValue}`) +
-    ` for ${formatMoney(cost)}`
-  let strPayoff = `production ${(
-    (shouldBuyNewNode ? newNodePayoff : bestUpgradePayoff) * cost
-  ).toPrecision(3)} payoff time: ${formatDuration(1000 * payoffTimeSeconds)}`
-  if (cost > maxSpend) {
-    log(
-      ns,
-      `The next best purchase would be ${strPurchase} but the cost ${formatMoney(
-        cost
-      )} exceeds the limit (${formatMoney(maxSpend)})`
-    )
-    return false // As long as maxSpend doesn't change, we will never purchase another upgrade
-  }
-  if (payoffTimeSeconds > maxPayoffTimeSeconds) {
-    log(
-      ns,
-      `The next best purchase would be ${strPurchase} but the ${strPayoff} is worse than the limit (${formatDuration(
-        1000 * maxPayoffTimeSeconds
-      )})`
-    )
-    return false // As long as maxPayoffTimeSeconds doesn't change, we will never purchase another upgrade
-  }
-  let success = shouldBuyNewNode
-    ? ns.hacknet.purchaseNode() !== -1
-    : bestUpgrade.upgrade(nodeToUpgrade, 1)
-  if (success && options.toast) ns.toast(`Purchased ${strPurchase}`, 'success')
-  log(
-    ns,
-    success
-      ? `Purchased ${strPurchase} with ${strPayoff}`
-      : `Insufficient funds to purchase the next best upgrade: ${strPurchase}`
-  )
-  return success ? cost : 0
+    let success = shouldBuyNewNode ? ns.hacknet.purchaseNode() !== -1 : bestUpgrade.upgrade(nodeToUpgrade, 1);
+    if (success && options.toast) ns.toast(`Purchased ${strPurchase}`, 'success');
+    log(ns, success ? `Purchased ${strPurchase} with ${strPayoff}` : `Insufficient funds to purchase the next best upgrade: ${strPurchase}`);
+    return success ? cost : 0;
 }
