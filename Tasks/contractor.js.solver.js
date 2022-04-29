@@ -43,14 +43,9 @@ export async function main(ns) {
         await ns.write(fUnsolvedContracts, JSON.stringify(notified), "w");
 }
 
-function findAnswer (contract) {
-  const codingContractSolution = codingContractTypesMetadata.find(
-    codingContractTypeMetadata =>
-      codingContractTypeMetadata.name === contract.type
-  )
-  return codingContractSolution
-    ? codingContractSolution.solver(contract.data)
-    : null
+function findAnswer(contract) {
+    const codingContractSolution = codingContractTypesMetadata.find((codingContractTypeMetadata) => codingContractTypeMetadata.name === contract.type)
+    return codingContractSolution ? codingContractSolution.solver(contract.data) : null;
 }
 
 function convert2DArrayToString(arr) {
@@ -64,8 +59,7 @@ function convert2DArrayToString(arr) {
 }
 
 // Based on https://github.com/danielyxie/bitburner/blob/master/src/data/codingcontracttypes.ts
-const codingContractTypesMetadata = [
-  {
+const codingContractTypesMetadata = [{
     name: 'Find Largest Prime Factor',
     solver: function (data) {
         let fac = 2
@@ -76,12 +70,10 @@ const codingContractTypesMetadata = [
             }
             ++fac
         }
-        ++fac
-      }
-      return n === 1 ? fac - 1 : n
-    }
-  },
-  {
+        return n === 1 ? fac - 1 : n
+    },
+},
+{
     name: 'Subarray with Maximum Sum',
     solver: function (data) {
         const nums = data.slice()
@@ -166,36 +158,11 @@ const codingContractTypesMetadata = [
                 break
             }
         }
-        // Right
-        for (var row = u; row <= d; row++) {
-          spiral[k] = data[row][r]
-          ++k
-        }
-        if (--r < l) {
-          break
-        }
-        // Down
-        for (var col = r; col >= l; col--) {
-          spiral[k] = data[d][col]
-          ++k
-        }
-        if (--d < u) {
-          break
-        }
-        // Left
-        for (var row = d; row >= u; row--) {
-          spiral[k] = data[row][l]
-          ++k
-        }
-        if (++l > r) {
-          break
-        }
-      }
 
-      return spiral
-    }
-  },
-  {
+        return spiral
+    },
+},
+{
     name: 'Array Jumping Game',
     solver: function (data) {
         const n = data.length
@@ -278,15 +245,12 @@ const codingContractTypesMetadata = [
                         }
                     }
                 }
-              }
             }
-          }
         }
-      }
-      return ret
-    }
-  },
-  {
+        return ret
+    },
+},
+{
     name: 'Algorithmic Stock Trader I',
     solver: function (data) {
         let maxCur = 0
@@ -356,11 +320,10 @@ const codingContractTypesMetadata = [
                 hold[j] = Math.max(hold[j], rele[j - 1] - cur)
             }
         }
-      }
-      return rele[k]
-    }
-  },
-  {
+        return rele[k]
+    },
+},
+{
     name: 'Minimum Path Sum in a Triangle',
     solver: function (data) {
         const n = data.length
@@ -370,11 +333,10 @@ const codingContractTypesMetadata = [
                 dp[j] = Math.min(dp[j], dp[j + 1]) + data[i][j]
             }
         }
-      }
-      return dp[0]
-    }
-  },
-  {
+        return dp[0]
+    },
+},
+{
     name: 'Unique Paths in a Grid I',
     solver: function (data) {
         const n = data[0] // Number of rows
@@ -389,11 +351,10 @@ const codingContractTypesMetadata = [
                 currentRow[i] += currentRow[i - 1]
             }
         }
-      }
-      return currentRow[n - 1]
-    }
-  },
-  {
+        return currentRow[n - 1]
+    },
+},
+{
     name: 'Unique Paths in a Grid II',
     solver: function (data) {
         const obstacleGrid = []
@@ -515,7 +476,6 @@ const codingContractTypesMetadata = [
                 left > 0 ? --left : ++right
             }
         }
-      }
 
         function dfs(pair, index, left, right, s, solution, res) {
             if (s.length === index) {
@@ -528,31 +488,25 @@ const codingContractTypesMetadata = [
                     res.push(solution)
                 }
                 return
-              }
             }
-            res.push(solution)
-          }
-          return
+            if (s[index] === '(') {
+                if (left > 0) {
+                    dfs(pair, index + 1, left - 1, right, s, solution, res)
+                }
+                dfs(pair + 1, index + 1, left, right, s, solution + s[index], res)
+            } else if (s[index] === ')') {
+                if (right > 0) dfs(pair, index + 1, left, right - 1, s, solution, res)
+                if (pair > 0) dfs(pair - 1, index + 1, left, right, s, solution + s[index], res)
+            } else {
+                dfs(pair, index + 1, left, right, s, solution + s[index], res)
+            }
         }
-        if (s[index] === '(') {
-          if (left > 0) {
-            dfs(pair, index + 1, left - 1, right, s, solution, res)
-          }
-          dfs(pair + 1, index + 1, left, right, s, solution + s[index], res)
-        } else if (s[index] === ')') {
-          if (right > 0) dfs(pair, index + 1, left, right - 1, s, solution, res)
-          if (pair > 0)
-            dfs(pair - 1, index + 1, left, right, s, solution + s[index], res)
-        } else {
-          dfs(pair, index + 1, left, right, s, solution + s[index], res)
-        }
-      }
-      dfs(0, 0, left, right, data, '', res)
+        dfs(0, 0, left, right, data, '', res)
 
-      return res
-    }
-  },
-  {
+        return res
+    },
+},
+{
     name: 'Find All Valid Math Expressions',
     solver: function (data) {
         const num = data[0]
@@ -579,42 +533,9 @@ const codingContractTypesMetadata = [
                 }
             }
         }
-        for (var i = pos; i < num.length; ++i) {
-          if (i != pos && num[pos] == '0') {
-            break
-          }
-          var cur = parseInt(num.substring(pos, i + 1))
-          if (pos === 0) {
-            helper(res, path + cur, num, target, i + 1, cur, cur)
-          } else {
-            helper(
-              res,
-              path + '+' + cur,
-              num,
-              target,
-              i + 1,
-              evaluated + cur,
-              cur
-            )
-            helper(
-              res,
-              path + '-' + cur,
-              num,
-              target,
-              i + 1,
-              evaluated - cur,
-              -cur
-            )
-            helper(
-              res,
-              path + '*' + cur,
-              num,
-              target,
-              i + 1,
-              evaluated - multed + multed * cur,
-              multed * cur
-            )
-          }
+
+        if (num == null || num.length === 0) {
+            return []
         }
         const result = []
         helper(result, '', num, target, 0, 0, 0)
