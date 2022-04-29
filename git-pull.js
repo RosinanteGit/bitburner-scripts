@@ -12,6 +12,7 @@ const argsSchema = [
       'advanced-v4.js',
       'autocrime.js',
       'auto-upgrade.js',
+      'bladeburner.js',
       'cascade-kill.js',
       'cleanup.js',
       'crime.js',
