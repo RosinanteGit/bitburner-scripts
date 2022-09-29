@@ -42,6 +42,7 @@ const argsSchema = [
       'spend-hacknet-hashes.js',
       'stats.js',
       'stanek.js',
+      'stanek.js.create.js',
       'stockmaster.js',
       'work-for-factions.js',
       '/Flags/deleting.txt',
