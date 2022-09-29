@@ -44,6 +44,7 @@ const argsSchema = [
       'stanek.js',
       'stanek.js.create.js',
       'stockmaster.js',
+      'sync-scripts.js',
       'work-for-factions.js',
       '/Flags/deleting.txt',
       '/Remote/grow-target.js',
