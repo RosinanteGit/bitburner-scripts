@@ -32,6 +32,7 @@ const argsSchema = [
       'host-manager.js',
       'kill-all-scripts.js',
       'optimize-stanek.js',
+      'optimize-stanek.js.og.js',
       'remove-worst-server.js',
       'reserve.js',
       'reserve.txt',
