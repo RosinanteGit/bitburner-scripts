@@ -20,6 +20,7 @@ const argsSchema = [
       'crime.js',
       'daemon.js',
       'dev.js',
+      'dump-ns-namespace.js',
       'faction-manager.js',
       'farm-intelligence.js',
       'gangs.js',
