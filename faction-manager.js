@@ -539,7 +539,7 @@ async function manageFilteredSubset(ns, outputRows, subsetName, subset, printLis
     let [repCostByFaction, totalRepCost, totalAugCost] = computeCosts(subsetSorted);
     // By default, if the purchase order is unchanged after filtering out augmentations, don't bother reprinting the full list
     if (printList === true || printList !== false && options['show-all-purchase-lists'] && !subset.every((v, i) => v == subsetSorted[i]))
-        outputRows.push(`${subset.length} ${subsetName} Augmentations in Optimized Purchase Order:\n  ${subsetSorted.join('\n  ')}`);
+        outputRows.push(`${subset.length} ${subsetName} Augmentations in Optimized Purchase Order:\n  ${subsetSorted.join('\n  ')}`);
     outputRows.push(`Total Cost of ${subset.length} ${subsetName}:`.padEnd(37) + ` ${getCostString(totalAugCost, totalRepCost)}` +
         (totalRepCost == 0 ? '' : `  Donate: {${Object.keys(repCostByFaction).map(f => `"${f}":${formatNumberShort(repCostByFaction[f], 4)}`).join(", ")}}`));
     return subsetSorted;
@@ -807,7 +807,7 @@ function displayFactionSummary(ns, sortBy, unique, overrideFinishedFactions, exc
     // Creates the string to display a single faction's stats in the table
     let getFactionSummary = faction => {
         const totalMults = faction.totalUnownedMults();
-        return `\n ${faction.joined ? '✓' : faction.invited ? '✉' : '✗'} ${faction.name} `.padEnd(32) +
+        return `\n ${faction.joined ? '✓' : faction.invited ? '✉' : '✗'} ${faction.name} `.padEnd(32) +
             `${String(faction.unownedAugmentations().length).padStart(2)} / ${String(faction.augmentations.length).padEnd(2)} ` +
             relevantAugStats.map(key => (totalMults[key] === undefined ? '-' : totalMults[key].toPrecision(3)).padStart(Math.max(shorten(key).length, 4))).join(' ');
     };

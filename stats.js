@@ -160,7 +160,7 @@ export async function main(ns) {
             // Create new HUD elements with info collected above.
             for (const hudRow of hudData) {
                 const [header, formattedValue, toolTip] = hudRow;
-                hook0.appendChild(newline(header.padEnd(9, " "), toolTip));
+                hook0.appendChild(newline(header.padEnd(9, " "), toolTip));
                 hook1.appendChild(newline(formattedValue, toolTip));
             }
             hudData.length = 0; // Clear the hud data for the next iteration
