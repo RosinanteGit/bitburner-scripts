@@ -1,4 +1,4 @@
-
-*.txt
-.vscode/*.*
-*.ts
+.vscode/
+index.d.ts
+lib/
+bin/
