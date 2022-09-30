@@ -16,8 +16,8 @@ Then repeat that script every 1 second, and you'll get 50% of the server's maxim
 
 How to use:
 1. It appears Bitburner has a setting in the options menu that dictates how long to wait for each script. Default is 25ms. I lowered mine to 5ms and quintupled my output. Not sure if every machine can handle it though
-2. Reduce Min Security of Target Server to 1 via hashnet hashes
-3. Spend Rest in Maximum Money of Target Server
+2. Reduce Min Security of target Server to 1 via hashnet hashes
+3. Spend Rest in Maximum Money of target Server
 4. run OP.js megacorp (u can change target Server)
 5. Profit!
 
