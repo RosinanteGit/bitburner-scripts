@@ -14,4 +14,4 @@ Then repeat that script every 1 second, and you'll get 50% of the server's maxim
 
 Usefull Aliases:
 
-
+`alias OPS=run stats.js; run work-for-factions.js --fast-crimes-only --no-coding-contracts; run stockmaster.js --show-market-summary; home; run gangs.js; run sleeve.js` 
